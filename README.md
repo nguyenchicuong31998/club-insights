@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Club Insights
 
-## Getting Started
+A dashboard showing a club host how their club is doing.
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+club-insights/
+├── docker-compose.yml   PostgreSQL 16 (host port 5434)
+├── backend/             JSON API: Express 5 + TypeScript, clean architecture
+└── frontend/            Next.js 15 app that reads only from the API
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Run it
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Requires Node 22+ and Docker Desktop (running).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run install:all   # root, backend and frontend dependencies
+cp backend/.env.example backend/.env
+npm run dev           # starts Postgres, the API on :4000 and the web app on :3000
+```
 
-## Learn More
+The schema in `backend/db/schema.sql` is applied automatically the first time the
+Postgres container starts. To re-apply it after editing, run `npm run db:down -- -v`, which also deletes the data volume.
 
-To learn more about Next.js, take a look at the following resources:
+## Backend layers
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Dependencies point inward only: `interfaces → application → domain`, with
+`infrastructure` implementing interfaces that `domain` declares.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Layer | Folder | Holds |
+|---|---|---|
+| Domain | `src/domain` | Entities (`Club`, `Player`, `Session`, `Booking`) and repository interfaces. No framework or DB imports. |
+| Application | `src/application` | Use cases (`ListClubs`, `GetClub`) and application errors. Depend on repository interfaces only. |
+| Infrastructure | `src/infrastructure` | `pg` pool and `Pg*Repository` classes that implement the domain interfaces. |
+| Interfaces | `src/interfaces/http` | Express app, routes, controllers, error → HTTP status mapping. |
+| Composition root | `src/main.ts` | The only file that wires concrete classes together. |
 
-## Deploy on Vercel
+To add a feature: entity/interface in `domain` → use case in `application` →
+Postgres implementation in `infrastructure` → controller + route in `interfaces` → wire in `main.ts`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## API
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Method | Path | Response |
+|---|---|---|
+| GET | `/health` | `{ "status": "ok" }` |
+| GET | `/api/clubs` | `{ "data": Club[] }` |
+| GET | `/api/clubs/:id` | `{ "data": Club }` or 404 |
+
+## Status
+
+- The CSV files (`clubs`, `players`, `sessions`, `bookings`) are not in the repo yet, so the
+  schema columns are provisional and there is no seed script.
+- The brief asks for SQLite. This scaffold uses PostgreSQL by request; the README should say why before submission.
