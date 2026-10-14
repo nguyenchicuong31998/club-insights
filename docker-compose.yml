@@ -9,7 +9,6 @@ services:
       - "5434:5432" # 5434 on the host to avoid clashing with local PostgreSQL installs (5432/5433)
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U club -d club_insights"]
       interval: 2s

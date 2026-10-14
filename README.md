@@ -16,11 +16,12 @@ Requires Node 22+ and Docker Desktop (running).
 ```bash
 npm run install:all   # root, backend and frontend dependencies
 cp backend/.env.example backend/.env
-npm run dev           # starts Postgres, the API on :4000 and the web app on :3000
+npm run dev           # starts Postgres, applies migrations, then the API on :4000 and the web app on :3000
 ```
 
-The schema in `backend/db/schema.sql` is applied automatically the first time the
-Postgres container starts. To re-apply it after editing, run `npm run db:down -- -v`, which also deletes the data volume.
+The schema lives in numbered files under `backend/db/migrations/`. `npm run db:migrate` applies
+any file not yet recorded in the `schema_migrations` table, each in its own transaction, so it is
+safe to run repeatedly. To start from an empty database, run `npm run db:down -- -v`, which deletes the data volume.
 
 ## Backend layers
 
@@ -34,6 +35,7 @@ Dependencies point inward only: `interfaces → application → domain`, with
 | Infrastructure | `src/infrastructure` | `pg` pool and `Pg*Repository` classes that implement the domain interfaces. |
 | Interfaces | `src/interfaces/http` | Express app, routes, controllers, error → HTTP status mapping. |
 | Composition root | `src/main.ts` | The only file that wires concrete classes together. |
+| CLI | `src/cli` | One-off commands such as `migrate.ts`, wired the same way as `main.ts`. |
 
 To add a feature: entity/interface in `domain` → use case in `application` →
 Postgres implementation in `infrastructure` → controller + route in `interfaces` → wire in `main.ts`.

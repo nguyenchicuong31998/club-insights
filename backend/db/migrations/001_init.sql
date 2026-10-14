@@ -1,5 +1,6 @@
--- Provisional schema: column names are guesses until the real CSV files arrive.
+-- Initial schema. Column names are provisional until the real CSV files arrive.
 -- Timestamps are stored in UTC (timestamptz); each club carries its own IANA time zone.
+-- Applied by src/cli/migrate.ts; never edit an applied migration, add a new numbered file instead.
 
 CREATE TABLE IF NOT EXISTS clubs (
   id         TEXT PRIMARY KEY,
