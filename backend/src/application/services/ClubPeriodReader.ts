@@ -65,3 +65,26 @@ export class ClubPeriodReader {
     return this.sessions.firstSessionStart(clubId);
   }
 }
+
+/** The resolved range in both local dates and UTC instants, so clients never redo time zone math. */
+export interface PeriodInfo {
+  clubId: string;
+  timezone: string;
+  now: Date;
+  today: LocalDate;
+  range: DateRange & { partial: boolean; startUtc: Date; endUtc: Date };
+  previousRange: DateRange & { startUtc: Date; endUtc: Date };
+}
+
+export function describePeriod(p: ResolvedPeriod): PeriodInfo {
+  const cur = toInstants(p.range, p.club.timezone);
+  const prev = toInstants(p.previous, p.club.timezone);
+  return {
+    clubId: p.club.id,
+    timezone: p.club.timezone,
+    now: p.now,
+    today: p.today,
+    range: { ...p.range, partial: p.partial, startUtc: cur.start, endUtc: cur.end },
+    previousRange: { ...p.previous, startUtc: prev.start, endUtc: prev.end },
+  };
+}

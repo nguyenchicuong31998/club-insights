@@ -1,14 +1,13 @@
 import { computePeriodMetrics, type PeriodMetrics } from "../../domain/metrics/metrics.js";
 import { DEFINITIONS } from "../../domain/metrics/definitions.js";
-import { weekStartOf, weeksOverlapping, type DateRange, type Week } from "../../domain/time/DateRange.js";
+import { weekStartOf, weeksOverlapping, type Week } from "../../domain/time/DateRange.js";
 import { localDateOf } from "../../domain/time/localDate.js";
-import type { ClubPeriodReader, RangeInput } from "../services/ClubPeriodReader.js";
+import { describePeriod, type ClubPeriodReader, type PeriodInfo, type RangeInput } from "../services/ClubPeriodReader.js";
 
 export interface WeeklyPoint extends Week, PeriodMetrics {}
 
 export interface WeeklySeries {
-  range: DateRange & { partial: boolean };
-  timezone: string;
+  period: PeriodInfo;
   definition: string;
   weeks: WeeklyPoint[];
 }
@@ -26,8 +25,7 @@ export class GetWeeklySeries {
     const tz = period.club.timezone;
 
     return {
-      range: { ...period.range, partial: period.partial },
-      timezone: tz,
+      period: describePeriod(period),
       definition: DEFINITIONS.weeks,
       weeks: weeksOverlapping(period.range, period.today).map((week) => ({
         ...week,

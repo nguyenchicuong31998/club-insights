@@ -1,9 +1,8 @@
 import { sessionsBehind, type SessionFilter, type SessionRow } from "../../domain/metrics/metrics.js";
-import type { DateRange } from "../../domain/time/DateRange.js";
-import type { ClubPeriodReader, RangeInput } from "../services/ClubPeriodReader.js";
+import { describePeriod, type ClubPeriodReader, type PeriodInfo, type RangeInput } from "../services/ClubPeriodReader.js";
 
 export interface SessionList {
-  range: DateRange & { partial: boolean };
+  period: PeriodInfo;
   filter: SessionFilter;
   sessions: SessionRow[];
 }
@@ -15,7 +14,7 @@ export class ListSessionsBehindMetric {
     const period = await this.reader.resolve(clubId, input);
     const sessions = await this.reader.sessionsIn(period, period.range);
     return {
-      range: { ...period.range, partial: period.partial },
+      period: describePeriod(period),
       filter,
       sessions: sessionsBehind(sessions, period.now, filter),
     };

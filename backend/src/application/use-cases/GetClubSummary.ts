@@ -1,8 +1,7 @@
 import { DEFINITIONS } from "../../domain/metrics/definitions.js";
 import { change, computePeriodMetrics, type Change, type NoShowMetric } from "../../domain/metrics/metrics.js";
-import type { DateRange } from "../../domain/time/DateRange.js";
 import type { Club } from "../../domain/entities/Club.js";
-import type { ClubPeriodReader, RangeInput } from "../services/ClubPeriodReader.js";
+import { describePeriod, type ClubPeriodReader, type PeriodInfo, type RangeInput } from "../services/ClubPeriodReader.js";
 
 export interface CountComparison {
   current: number;
@@ -13,9 +12,7 @@ export interface CountComparison {
 
 export interface ClubSummary {
   club: Club;
-  now: Date;
-  range: DateRange & { partial: boolean };
-  previousRange: DateRange;
+  period: PeriodInfo;
   /** First non-cancelled session ever, or null. Lets the UI explain an empty club. */
   firstSessionAt: Date | null;
   /** At least one session has been held, in any period. False for a brand-new club. */
@@ -52,9 +49,7 @@ export class GetClubSummary {
 
     return {
       club: period.club,
-      now: period.now,
-      range: { ...period.range, partial: period.partial },
-      previousRange: period.previous,
+      period: describePeriod(period),
       firstSessionAt,
       hasHistory: firstSessionAt !== null && firstSessionAt < period.now,
       metrics: {
