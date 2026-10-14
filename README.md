@@ -53,6 +53,11 @@ The generated data deliberately contains the cases the numbers must survive:
 - **Cancellations.** There are cancelled sessions (including National Day, 2 Sep), cancelled bookings, and players who cancel and then rebook the same session.
 - **New club.** Thao Dien Pickleball was created on 5 Oct 2026 and has no sessions.
 
+## Metrics
+
+Every definition (active players, sessions held, no-shows, weeks, "now", comparison period) is in
+[docs/metrics.md](docs/metrics.md), together with hand-checked expected values for the sample data.
+
 ## Backend layers
 
 Dependencies point inward only: `interfaces → application → domain`, with
