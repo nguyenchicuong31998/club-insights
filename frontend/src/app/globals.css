@@ -1,26 +1,95 @@
 @import "tailwindcss";
 
+/* Design tokens. Components use these roles (bg-surface, text-ink-2, …), never raw hex. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --page: #f6f6f4;
+  --surface: #fcfcfb;
+  --surface-2: #f0efec;
+  --line: #e2e1dc;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --ink-3: #75746f;
+  --accent: #2a78d6; /* series 1 */
+  --accent-soft: #cde2fb;
+  --good: #0a7d0a;
+  --good-soft: #e3f3e3;
+  --bad: #c03232;
+  --bad-soft: #fbe6e6;
+  --warn: #8a5a00;
+  --warn-soft: #fdf1d8;
+  --unknown: #9a9993;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #121211;
+    --surface: #1a1a19;
+    --surface-2: #232321;
+    --line: #34342f;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --ink-3: #9a998f;
+    --accent: #3987e5;
+    --accent-soft: #1c3557;
+    --good: #4cc24c;
+    --good-soft: #17301a;
+    --bad: #ef7575;
+    --bad-soft: #3a1c1c;
+    --warn: #f0b545;
+    --warn-soft: #382a10;
+    --unknown: #6f6e68;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #121211;
+  --surface: #1a1a19;
+  --surface-2: #232321;
+  --line: #34342f;
+  --ink: #f0efec;
+  --ink-2: #c3c2b7;
+  --ink-3: #9a998f;
+  --accent: #3987e5;
+  --accent-soft: #1c3557;
+  --good: #4cc24c;
+  --good-soft: #17301a;
+  --bad: #ef7575;
+  --bad-soft: #3a1c1c;
+  --warn: #f0b545;
+  --warn-soft: #382a10;
+  --unknown: #6f6e68;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-unknown: var(--unknown);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.tabular {
+  font-variant-numeric: tabular-nums;
 }

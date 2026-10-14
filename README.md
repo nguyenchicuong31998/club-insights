@@ -82,6 +82,56 @@ SQL is listed under next steps for clubs with far more data.
 To add a feature: entity/interface in `domain` → use case in `application` →
 Postgres implementation in `infrastructure` → controller + route in `interfaces` → wire in `main.ts`.
 
+## Frontend
+
+The frontend is a Next.js app router project. `src/app/page.tsx` is a server component that calls the API.
+All state lives in the URL: `?club=&from=&to=&chart=&view=&session=`. Any view can be shared or bookmarked,
+and the back button works.
+
+**Main parts of the page**
+
+- **Header.** A club switcher, the fixed "now", and the club's time zone. All times on the page are shown in the club's time zone, not the viewer's.
+- **Range bar.**
+  - Presets for the last 4, 12 or 26 complete weeks, plus a custom range.
+  - It always prints the exact comparison dates, for example "7 Sept – 4 Oct 2026 · compared with 10 Aug – 6 Sept 2026".
+  - It flags a range that includes today, since that range is not over yet.
+
+**Key numbers**
+
+There are three cards. Each shows the value, the previous value, and the change as an arrow plus text, never color alone. Each also shows its definition under the number and links to the list behind it.
+
+- **When the previous period is zero.** If a club has no sessions in the previous period, the card says there is nothing to compare. It does not show a misleading "+61".
+- **No-show card.**
+  - Shows the count and the rate, with a coverage bar ("attendance taken for 230 of 306 bookings").
+  - Compares the *rate*, in percentage points.
+  - Shows **Unknown**, never 0, when no attendance was taken.
+
+**Weekly chart**
+
+- One metric at a time: active players, sessions held, or no-show rate.
+- Shows the previous period in a muted tone beside the selected range, for context.
+- Weeks are marked when they are partial (cut by the range, or still in progress) or have no attendance taken.
+- Has a hover or focus tooltip, keyboard stepping, and a "Show as table" view.
+- The chart is hand-written SVG, with no chart library.
+
+**Drill-down**
+
+- A drawer opens from any card. It is full screen on a phone and closes with Esc.
+- It has five lists: sessions held, active players, players who didn't show, sessions with no-shows, and sessions missing attendance.
+- Clicking a session lists every booking as **Attended**, **No-show** or **Not recorded**, plus the cancelled bookings that are not counted.
+
+**Empty club**
+
+The new club gets an explanation instead of zeros: when it was created, what each number will show and when, and a tip to take attendance from the first session.
+
+**Other states**
+
+- Loading skeleton.
+- Error page with retry.
+- A readable message for a bad date range, with a reset link.
+- Light and dark themes driven by the same color tokens (`globals.css`).
+- The layout is built for a laptop. On a phone, the cards stack and wide tables scroll inside their box, never the page.
+
 ## API
 
 The API returns JSON only and is designed to be reused by the mobile app as is. Clients never do time zone
