@@ -1,6 +1,6 @@
 import cors from "cors";
 import express, { type NextFunction, type Request, type Response } from "express";
-import { NotFoundError } from "../../application/errors.js";
+import { NotFoundError, ValidationError } from "../../application/errors.js";
 import type { ClubController } from "./controllers/ClubController.js";
 import { clubRoutes } from "./routes/clubRoutes.js";
 
@@ -22,6 +22,10 @@ export function createApp(controllers: Controllers, corsOrigin: string) {
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof NotFoundError) {
       res.status(404).json({ error: err.message });
+      return;
+    }
+    if (err instanceof ValidationError) {
+      res.status(400).json({ error: err.message });
       return;
     }
     console.error(err);

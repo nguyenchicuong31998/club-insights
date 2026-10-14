@@ -65,12 +65,19 @@ Dependencies point inward only: `interfaces → application → domain`, with
 
 | Layer | Folder | Holds |
 |---|---|---|
-| Domain | `src/domain` | Entities (`Club`, `Player`, `Session`, `Booking`) and repository interfaces. No framework or DB imports. |
-| Application | `src/application` | Use cases (`ListClubs`, `GetClub`) and application errors. Depend on repository interfaces only. |
-| Infrastructure | `src/infrastructure` | `pg` pool, migration runner, CSV seed loader, and `Pg*Repository` classes that implement the domain interfaces. |
-| Interfaces | `src/interfaces/http` | Express app, routes, controllers, error → HTTP status mapping. |
+| Domain | `src/domain` | Entities, repository interfaces, and **all metric logic** as pure functions: `time/` (local dates, club time zone → UTC, Monday–Sunday weeks, previous period) and `metrics/` (sessions held, active players, no-shows with coverage, changes, drill-down rows, definitions). No framework or DB imports. |
+| Application | `src/application` | Use cases: `ListClubs`, `GetClub`, `GetClubSummary`, `GetWeeklySeries`, `ListSessionsBehindMetric`, `ListPlayersBehindMetric`, `GetSessionDetail`. `ClubPeriodReader` resolves and validates the date range; the `Clock` port supplies the fixed "now". |
+| Infrastructure | `src/infrastructure` | `pg` pool, migration runner, CSV seed loader, `FixedClock`, and `PgClubRepository` / `PgSessionRepository`. |
+| Interfaces | `src/interfaces/http` | Express app, routes, controllers, zod query schemas, error → HTTP status mapping (validation 400, not found 404). |
 | Composition root | `src/main.ts` | The only file that wires concrete classes together. |
 | CLI | `src/cli` | One-off commands (`migrate.ts`, `seed.ts`, `generate-data.ts`), wired the same way as `main.ts`. |
+
+**Why the numbers are computed in TypeScript, not SQL.** The repository returns the sessions in a
+range with their confirmed bookings, and the domain functions compute every number from that one
+input. The summary cards, the weekly chart and the drill-down lists therefore share one code
+path, so a headline number always equals the length of the list behind it, and the logic can be
+unit-tested without a database. A four-week range is about 300 bookings. Moving the aggregation into
+SQL is listed under next steps for clubs with far more data.
 
 To add a feature: entity/interface in `domain` → use case in `application` →
 Postgres implementation in `infrastructure` → controller + route in `interfaces` → wire in `main.ts`.
