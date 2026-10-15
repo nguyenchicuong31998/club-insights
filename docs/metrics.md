@@ -79,7 +79,7 @@ Weekly active players, by local Monday: 10 Aug 57, 17 Aug 52, 24 Aug 56, 31 Aug 
 **Time zone check:** bucketing weeks in UTC instead of local time moves the Mon 7 Sep 06:00 session
 into the week of 31 Aug (UTC weeks give 1 / 6 / 4 sessions instead of 6 / 5 for 7–20 Sep). Covered by `test/domain/time.test.ts` and the API tests.
 
-## Decisions to confirm
+## Assumptions (applied, easy to change)
 
 1. A held session with zero bookings counts as held (see Sessions held).
 2. A player who only no-showed is not active. A player whose attendance was not recorded is active.

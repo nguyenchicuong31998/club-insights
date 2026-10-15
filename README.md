@@ -28,6 +28,8 @@ which skips the install. No `.env` is needed: the defaults match `docker-compose
 | `npm run db:migrate` | Applies any `backend/db/migrations/NNN_*.sql` not yet in `schema_migrations`, each in its own transaction. Safe to repeat. |
 | `npm run db:seed` | Reloads all four CSVs, replacing existing rows in one transaction. Prints CSV rows vs valid rows vs rows in the database, and lists every rejected row with file, line and reason. |
 | `npm test` | Starts and seeds Postgres if needed, then runs every backend test (see [Tests](#tests)). |
+| `npm run check` | Typechecks the backend (source and tests) and the frontend, then lints the frontend. |
+| `npm run db:check` | Recomputes the headline numbers in plain SQL ([docs/spot-check.sql](docs/spot-check.sql)), independently of the TypeScript code, to compare with the dashboard. |
 | `npm run db:reset` | Deletes the Postgres volume, then migrates and seeds from scratch. |
 
 ## Data
@@ -240,6 +242,63 @@ curl "localhost:4000/api/clubs/clb_saigon/summary?from=2026-09-07&to=2026-10-04"
 }
 ```
 
-## Status
+## Decisions
 
-- The brief asks for SQLite. This project uses PostgreSQL by request; the reasons will be written up under Decisions.
+These are the calls made where the brief left room. The metric definitions themselves are in
+[docs/metrics.md](docs/metrics.md).
+
+**Stack and setup**
+
+- **PostgreSQL instead of SQLite.** The brief suggests SQLite; the project owner asked for PostgreSQL. The reasons:
+  - It is closer to what a production service would run.
+  - `timestamptz` and `AT TIME ZONE` make the time zone rules checkable in plain SQL ([docs/spot-check.sql](docs/spot-check.sql)), so they don't depend only on the app code.
+  - `CHECK` constraints reject impossible data at the source, such as a cancelled booking with attendance, or a session that ends before it starts.
+
+  The cost is that Docker must be running. Postgres runs from `docker-compose.yml` on host port 5434, so it won't clash with a local Postgres, and `npm start` still does everything in one command.
+- **Separate `backend/` and `frontend/`.** The backend is a plain JSON API, so the mobile app can call the same endpoints. The frontend never reads the database.
+- **Clean architecture in the backend.** It is a little more ceremony than a small app needs. In return, all metric logic is pure functions with no database, so it is cheap to test and to reuse.
+- **Numbers computed in TypeScript rather than SQL.** This keeps one code path for the cards, the chart and the lists (see [Backend layers](#backend-layers)). Plain SQL is kept as an independent check (`npm run db:check`).
+- **Generated sample data.** No CSVs came with the brief. `generate-data.ts` produces them with a fixed seed, and includes on purpose every case the numbers have to survive (see [Data](#data)).
+
+**Time**
+
+- **"Now" is configuration.** It is set by `NOW` (default `2026-10-05T09:00:00+07:00`) and reaches the code only through the `Clock` port, so every number is reproducible.
+- **Everything is in the club's time zone.** This covers "today", ranges and weeks. A session belongs to the local date it *starts* on. An inclusive local range (7 Sep – 4 Oct) becomes the half-open UTC interval `[6 Sep 17:00Z, 4 Oct 17:00Z)`. The API returns both forms, so clients do no time zone math.
+- **Default range and comparison.** The default range is the last 4 complete Monday–Sunday weeks. It is compared with the period of the same length directly before it. A range can be at most 366 days, can't start after today, and is flagged as partial when it reaches today.
+
+**What counts**
+
+- **Sessions held.** A session is held if it was not cancelled and has already started. A session with zero bookings still counts as held.
+- **Active players.** A player is active if they have a confirmed booking at a held session that was not marked as a no-show. When attendance wasn't taken, the player is presumed to have played. A player who only no-showed is not active.
+- **No-shows.**
+  - When no attendance was taken in a period, the count and rate are `null` and the UI shows "Unknown". They are never 0.
+  - The rate divides by bookings *with attendance recorded*, and the coverage is shown next to it.
+  - Periods are compared by rate in percentage points, because the count rises whenever more attendance is taken.
+- **Change when the previous value is 0.** The absolute change is shown, but there is no relative change, rather than "+∞%" or "+100%". The card says there is nothing to compare against.
+- **Empty club.** A club that has never held a session gets an explanation page instead of a row of zeros.
+- **Drill-down.** Every number opens the exact list it was counted from, built by the same functions.
+
+**Interface**
+
+- **The UI is in English**, matching the brief.
+- **All UI state is in the URL,** so any view can be shared.
+- **The weekly chart shows one metric at a time**, with the previous period beside it for context. It never uses two y-axes.
+
+**Out of scope**
+
+Authentication, editing data, and anything beyond the four CSVs.
+
+The first two points under "What counts" are assumptions that are easy to change; each one is one line in `domain/metrics/metrics.ts`.
+
+## Next steps
+
+1. **Authentication and per-club access.** A host should see only their own clubs. The API currently trusts the club id in the URL.
+2. **Aggregate in SQL once clubs get big.** Keep the TypeScript functions as the reference, and add a test that checks the SQL results against them. Weekly rollups could be precomputed when attendance is saved.
+3. **Raise attendance coverage.** The no-show number is only as good as the check-ins behind it. Possible steps: a reminder to take attendance after each session, a one-tap check-in, and showing which sessions still need it (that list already exists).
+4. **Frontend tests.** Add component tests for the cards' Unknown and "nothing to compare" states, and a Playwright smoke test of the main flow. Today only the backend is tested.
+5. **CI.** Add a GitHub Actions job with a Postgres service that runs `npm run check` and `npm test` on every push.
+6. **An OpenAPI spec** for the mobile team, generated from the zod schemas.
+7. **Caching.** Responses for past ranges never change, so they can be cached until new attendance is recorded for that period.
+8. **More metrics hosts ask for.** New vs returning players, fill rate (bookings ÷ capacity), and the share of late cancellations.
+9. **Vietnamese UI**, and date formats that follow each club's locale.
+10. **Pagination and CSV export** for the drill-down lists.
