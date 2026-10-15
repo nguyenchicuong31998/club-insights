@@ -7,10 +7,12 @@
     "dev": "tsx watch --env-file-if-exists=.env src/main.ts",
     "build": "tsc",
     "start": "node --env-file-if-exists=.env dist/main.js",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p test",
     "db:migrate": "tsx --env-file-if-exists=.env src/cli/migrate.ts",
     "db:seed": "tsx --env-file-if-exists=.env src/cli/seed.ts",
-    "data:generate": "tsx src/cli/generate-data.ts"
+    "data:generate": "tsx src/cli/generate-data.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "cors": "^2.8.6",
@@ -25,6 +27,7 @@
     "@types/node": "^22.20.5",
     "@types/pg": "^8.23.1",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.4"
   }
 }

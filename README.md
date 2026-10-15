@@ -27,6 +27,7 @@ which skips the install. No `.env` is needed: the defaults match `docker-compose
 |---|---|
 | `npm run db:migrate` | Applies any `backend/db/migrations/NNN_*.sql` not yet in `schema_migrations`, each in its own transaction. Safe to repeat. |
 | `npm run db:seed` | Reloads all four CSVs, replacing existing rows in one transaction. Prints CSV rows vs valid rows vs rows in the database, and lists every rejected row with file, line and reason. |
+| `npm test` | Starts and seeds Postgres if needed, then runs every backend test (see [Tests](#tests)). |
 | `npm run db:reset` | Deletes the Postgres volume, then migrates and seeds from scratch. |
 
 ## Data
@@ -69,7 +70,7 @@ Dependencies point inward only: `interfaces → application → domain`, with
 | Application | `src/application` | Use cases: `ListClubs`, `GetClub`, `GetClubSummary`, `GetWeeklySeries`, `ListSessionsBehindMetric`, `ListPlayersBehindMetric`, `GetSessionDetail`. `ClubPeriodReader` resolves and validates the date range; the `Clock` port supplies the fixed "now". |
 | Infrastructure | `src/infrastructure` | `pg` pool, migration runner, CSV seed loader, `FixedClock`, and `PgClubRepository` / `PgSessionRepository`. |
 | Interfaces | `src/interfaces/http` | Express app, routes, controllers, zod query schemas, error → HTTP status mapping (validation 400, not found 404). |
-| Composition root | `src/main.ts` | The only file that wires concrete classes together. |
+| Composition root | `src/container.ts`, `src/main.ts` | `buildApp` in `container.ts` is the only place that wires concrete classes together; the API tests use it too. `main.ts` reads config and starts the server. |
 | CLI | `src/cli` | One-off commands (`migrate.ts`, `seed.ts`, `generate-data.ts`), wired the same way as `main.ts`. |
 
 **Why the numbers are computed in TypeScript, not SQL.** The repository returns the sessions in a
@@ -80,7 +81,26 @@ unit-tested without a database. A four-week range is about 300 bookings. Moving 
 SQL is listed under next steps for clubs with far more data.
 
 To add a feature: entity/interface in `domain` → use case in `application` →
-Postgres implementation in `infrastructure` → controller + route in `interfaces` → wire in `main.ts`.
+Postgres implementation in `infrastructure` → controller + route in `interfaces` → wire in `container.ts`.
+
+## Tests
+
+```bash
+npm test                      # repo root: starts and seeds Postgres if needed, then runs everything
+npm --prefix backend test     # tests only; the API tests are skipped, with a message, if there is no seeded database
+```
+
+The tests use Vitest and live in `backend/test`. There are 45 of them.
+
+| File | What it checks |
+|---|---|
+| `domain/noShows.test.ts` | **No-shows, the number most likely to be wrong.** No attendance taken gives Unknown (`null`), never 0. Everyone attending gives a real 0. With attendance taken for only some bookings, the rate divides by the recorded bookings only: 3 of 11, not 3 of 22. Coverage is reported. Cancelled and future sessions never count. The rate change is null when either side is Unknown. The drill-down lists add up to the headline number. |
+| `domain/time.test.ts` | **Weeks in the club's time zone.** Sunday 23:30 in Saigon stays in the week that is ending. Monday 00:30, which is still Sunday 17:30 in UTC, starts the new week, and so does the Monday 06:00 session. Inclusive local ranges become half-open UTC intervals. DST and half-hour zones work. Invalid dates are rejected. The default range and the partial-week flags are correct. |
+| `domain/periods.test.ts` | **Comparisons.** The previous period has the same length, including across month ends and leap days. The change is correct, and its relative part is null (not Infinity) when the previous value is 0. "Today" is the club's local date. Bad ranges are rejected. |
+| `application/weekly.test.ts` | **Use cases over in-memory repositories.** Sessions at the edges of a range or a week land in the right bucket. Unknown no-shows stay separate from 0, week by week. A new club has no history. |
+| `integration/api.test.ts` | **The HTTP API on the seeded Postgres data,** checked against the hand-computed values in [docs/metrics.md](docs/metrics.md): 22/22 sessions, 112/106 active players, 27 no-shows of 230 recorded vs 18 of 191, the weekly active players, and the local 6/5 split of sessions across 7–20 Sep. Each list's length equals its number. The empty club works. Errors return 400 and 404. |
+
+To make sure the tests can fail, two bugs were added on purpose and then removed: dividing no-shows by all bookings, and bucketing weeks in UTC. Together they made 7 tests fail.
 
 ## Frontend
 

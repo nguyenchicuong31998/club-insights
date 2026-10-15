@@ -59,7 +59,7 @@ A club with no held sessions in the range shows no zeros. It shows a message tha
 
 ## Expected values (sample data, Saigon Pickleball Club)
 
-These were computed by hand in SQL against `backend/data/*.csv` and will become test fixtures.
+These were computed by hand in SQL against `backend/data/*.csv`. `backend/test/integration/api.test.ts` checks the API against them.
 
 | | Current: 7 Sep – 4 Oct | Previous: 10 Aug – 6 Sep |
 |---|---|---|
@@ -77,7 +77,7 @@ Weekly active players, by local Monday: 10 Aug 57, 17 Aug 52, 24 Aug 56, 31 Aug 
 14 Sep 52, 21 Sep 59, 28 Sep 52, and 5 Oct 11. The 5 Oct week is **partial**: so far only the 06:00 Monday session has happened.
 
 **Time zone check:** bucketing weeks in UTC instead of local time moves the Mon 7 Sep 06:00 session
-into the week of 31 Aug (UTC weeks give 1 / 6 / 4 sessions instead of 6 / 5 for 7–20 Sep). The tests must cover this.
+into the week of 31 Aug (UTC weeks give 1 / 6 / 4 sessions instead of 6 / 5 for 7–20 Sep). Covered by `test/domain/time.test.ts` and the API tests.
 
 ## Decisions to confirm
 
