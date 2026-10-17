@@ -21,6 +21,8 @@ export interface PageState {
   view?: DrillView;
   session?: string;
   chart?: ChartMetric;
+  /** Page of the open drill-down list (1-based). */
+  page?: number;
 }
 
 export function parseState(params: Record<string, string | string[] | undefined>): PageState {
@@ -34,16 +36,21 @@ export function parseState(params: Record<string, string | string[] | undefined>
     view: view && DRILL_VIEWS.includes(view) ? view : undefined,
     session: one("session"),
     chart: chart && CHART_METRICS.includes(chart) ? chart : undefined,
+    page: /^[1-9]\d{0,3}$/.test(one("page") ?? "") ? Number(one("page")) : undefined,
   };
 }
 
-/** Link to the current state with some keys changed; `undefined` removes a key. */
+/**
+ * Link to the current state with some keys changed; `undefined` removes a key. Changing the list,
+ * club or dates goes back to page 1, since the old page number means nothing in the new list.
+ */
 export function hrefWith(state: PageState, patch: Partial<PageState>): string {
-  const next = { ...state, ...patch };
+  const resetsPage = ["view", "club", "from", "to"].some((k) => k in patch && patch[k as keyof PageState] !== state[k as keyof PageState]);
+  const next = { ...state, ...(resetsPage ? { page: undefined } : {}), ...patch };
   const params = new URLSearchParams();
-  for (const key of ["club", "from", "to", "chart", "view", "session"] as const) {
+  for (const key of ["club", "from", "to", "chart", "view", "page", "session"] as const) {
     const value = next[key];
-    if (value) params.set(key, value);
+    if (value && !(key === "page" && value === 1)) params.set(key, String(value));
   }
   const s = params.toString();
   return s ? `/?${s}` : "/";

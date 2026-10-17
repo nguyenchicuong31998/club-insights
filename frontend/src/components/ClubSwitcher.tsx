@@ -16,7 +16,6 @@ export function ClubSwitcher({ clubs, state, current }: { clubs: Club[]; state: 
       <span className="relative min-w-0">
         <select
           value={current}
-          disabled={pending}
           onChange={(e) =>
             startTransition(() => router.push(hrefWith(state, { club: e.target.value, view: undefined, session: undefined })))
           }

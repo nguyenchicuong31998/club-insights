@@ -109,6 +109,14 @@ export interface PlayerRow {
   lastSessionAt: string;
 }
 
+export interface Pagination {
+  page: number;
+  pageSize: number;
+  /** Rows across all pages: the headline number the list is behind. */
+  total: number;
+  totalPages: number;
+}
+
 export type SessionFilter = "held" | "with_no_shows" | "attendance_not_recorded";
 export type PlayerFilter = "active" | "no_show";
 

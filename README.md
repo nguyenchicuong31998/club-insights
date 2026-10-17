@@ -23,7 +23,7 @@ the install. No `.env` is needed.
 
 | Command | Does |
 |---|---|
-| `npm test` | Starts and seeds Postgres if needed, then runs the 64 backend tests |
+| `npm test` | Starts and seeds Postgres if needed, then runs the 67 backend tests |
 | `npm run check` | Typechecks backend and frontend, lints the frontend |
 | `npm run db:check` | Recomputes the headline numbers in plain SQL, to compare with the screen |
 | `npm run db:seed` / `db:reset` | Reloads the CSVs (lists any rejected rows) / rebuilds the database from scratch |
@@ -65,7 +65,8 @@ The test for the number most likely to be wrong, no-shows, is `backend/test/doma
 - **The CSVs are validated, not trusted.** Impossible dates, duplicate bookings, players from another club and
   inconsistent cancellations are rejected, and each one is reported with file and line.
 - **The API is built for the mobile app:** it returns definitions, local dates and UTC instants, and explicit
-  labels (`attended` / `no_show` / `not_recorded`), so no client has to redo time zone or null logic.
+  labels (`attended` / `no_show` / `not_recorded`), so no client has to redo time zone or null logic. Lists
+  are paged, and each page reports the total, which always equals the number it is behind.
   Reference: [docs/api.md](docs/api.md).
 - **UI in English**, matching the brief. All state is in the URL, so any view can be shared.
 

@@ -37,13 +37,13 @@ export class MetricsController {
   };
 
   sessions = async (req: ClubParams, res: Response) => {
-    const { filter, ...range } = parseQuery(sessionsQuery, req.query);
-    res.json(envelope(await this.listSessions.execute(req.params.id, range, filter)));
+    const { filter, page, pageSize, ...range } = parseQuery(sessionsQuery, req.query);
+    res.json(envelope(await this.listSessions.execute(req.params.id, range, filter, { page, pageSize })));
   };
 
   players = async (req: ClubParams, res: Response) => {
-    const { filter, ...range } = parseQuery(playersQuery, req.query);
-    res.json(envelope(await this.listPlayers.execute(req.params.id, range, filter)));
+    const { filter, page, pageSize, ...range } = parseQuery(playersQuery, req.query);
+    res.json(envelope(await this.listPlayers.execute(req.params.id, range, filter, { page, pageSize })));
   };
 
   sessionDetail = async (req: Request<{ id: string; sessionId: string }>, res: Response) => {

@@ -77,14 +77,17 @@ export function NoShowsBySession({ rows }: { rows: AttendanceBySessionType[] }) 
 }
 
 /** The other half of the host's question: who it is that doesn't show up. */
-export function WhoDidntShow({ players, unknown, meta, allHref }: {
+export function WhoDidntShow({ players, total, unknown, meta, allHref }: {
+  /** The worst few, already sorted by the API. */
   players: PlayerRow[];
+  /** Everyone marked absent at least once. */
+  total: number;
   /** No attendance at all in the period: say so rather than "nobody". */
   unknown: boolean;
   meta: Meta;
   allHref: string;
 }) {
-  const shown = players.slice(0, 6);
+  const shown = players;
   return (
     <section aria-labelledby="who" className="flex min-w-0 flex-col">
       <SectionTitle
@@ -113,9 +116,9 @@ export function WhoDidntShow({ players, unknown, meta, allHref }: {
           })}
         </ul>
       )}
-      {players.length > shown.length && (
+      {total > shown.length && (
         <Link href={allHref} scroll={false} className="mt-3 text-sm font-medium text-accent underline-offset-4 hover:underline">
-          See all {formatCount(players.length)} players <span aria-hidden>→</span>
+          See all {formatCount(total)} players <span aria-hidden>→</span>
         </Link>
       )}
     </section>

@@ -41,11 +41,14 @@ const PAD = { top: 28, right: 8, bottom: 28, left: 44 };
  * `weeks` covers the previous period and the selected range. Previous-period weeks are drawn in a
  * muted tone so the trend is visible without them reading as part of the selection.
  */
-export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition }: {
+export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition, metricDefinitions }: {
   weeks: WeeklyPoint[];
   rangeFrom: string;
   initialMetric?: ChartMetric;
+  /** How weeks are cut. */
   definition: string;
+  /** What each charted number means, shown next to the chart like on the cards. */
+  metricDefinitions: Record<ChartMetric, string>;
 }) {
   const [metric, setMetric] = useState<ChartMetric>(initialMetric ?? "activePlayers");
   const [showTable, setShowTable] = useState(false);
@@ -102,7 +105,9 @@ export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition }: {
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
         <div>
           <h2 id="weekly-title" className="text-lg font-semibold text-ink">{METRIC_LABEL[metric]}, week by week</h2>
-          <p className="text-sm text-ink-2">{definition}</p>
+          <p className="max-w-2xl text-sm text-ink-2">
+            {metricDefinitions[metric]} <span className="text-ink-3">{definition}</span>
+          </p>
         </div>
         <div role="group" aria-label="Metric" className="flex flex-wrap gap-x-5">
           {CHART_METRICS.map((m) => (
@@ -123,7 +128,7 @@ export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition }: {
 
       {isRate && (
         <p className="text-sm text-ink-2">
-          Rate = no-shows ÷ bookings checked that week. A week where no attendance was taken has no rate, shown as ?.
+          Each bar is that week&apos;s rate. A week where no attendance was taken has no rate: it shows ?, not 0.
         </p>
       )}
 

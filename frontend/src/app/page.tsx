@@ -15,6 +15,11 @@ import { hrefWith, parseState, type PageState } from "@/lib/url";
 
 export const dynamic = "force-dynamic";
 
+/** Rows per page in the drill-down lists. */
+const PAGE_SIZE = 25;
+/** Players shown inline under "Who didn't show up"; the rest are one click away. */
+const WHO_DIDNT_SHOW = 6;
+
 export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const parsed = parseState(await searchParams);
 
@@ -57,13 +62,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
   // Independent requests, so they run side by side.
   let weeks: WeeklyPoint[] = [];
   let noShowPlayers: PlayerRow[] = [];
+  let noShowTotal = 0;
   if (summary.hasHistory) {
     const [weekly, players] = await Promise.all([
       api.weekly(club.id, { from: chartFrom, to: meta.range.to }),
-      api.players(club.id, selected, "no_show"),
+      api.players(club.id, selected, "no_show", { pageSize: WHO_DIDNT_SHOW }),
     ]);
     weeks = weekly.data.weeks;
     noShowPlayers = players.data.players;
+    noShowTotal = players.data.pagination.total;
   }
   const m = summary.metrics;
   const drill = (view: string) => hrefWith(state, { view: view as PageState["view"], session: undefined });
@@ -77,10 +84,17 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
           <RangeControls key={`${meta.range.from}:${meta.range.to}`} state={state} meta={meta} />
           <Headline summary={summary} meta={meta} />
           <KeyNumbers summary={summary} drill={drill} />
-          <WeeklyChart weeks={weeks} rangeFrom={meta.range.from} initialMetric={state.chart} definition={meta.definitions.weeks} />
+          <WeeklyChart weeks={weeks} rangeFrom={meta.range.from} initialMetric={state.chart} definition={meta.definitions.weeks}
+            metricDefinitions={{
+              activePlayers: meta.definitions.activePlayers,
+              sessionsHeld: meta.definitions.sessionsHeld,
+              noShowRate: meta.definitions.noShows,
+            }}
+          />
           <div className="grid gap-10 md:grid-cols-2 md:gap-12">
             <WhoDidntShow
               players={noShowPlayers}
+              total={noShowTotal}
               unknown={m.noShows.current.count === null}
               meta={meta}
               allHref={drill("players:no_show")}
@@ -118,9 +132,15 @@ async function DrillPanel({ state, meta }: { state: PageState; meta: Meta }) {
   }
 
   const [kind, filter] = view.split(":") as ["sessions" | "players", string];
-  const content = kind === "sessions"
-    ? <SessionsTable rows={(await api.sessions(meta.clubId, range, filter as SessionFilter)).data.sessions} meta={meta} state={state} view={view} />
-    : <PlayersTable rows={(await api.players(meta.clubId, range, filter as PlayerFilter)).data.players} meta={meta} state={state} view={view} />;
+  const page = { page: state.page ?? 1, pageSize: PAGE_SIZE };
+  let content: React.ReactNode;
+  if (kind === "sessions") {
+    const { data } = await api.sessions(meta.clubId, range, filter as SessionFilter, page);
+    content = <SessionsTable rows={data.sessions} pagination={data.pagination} meta={meta} state={state} view={view} />;
+  } else {
+    const { data } = await api.players(meta.clubId, range, filter as PlayerFilter, page);
+    content = <PlayersTable rows={data.players} pagination={data.pagination} meta={meta} state={state} view={view} />;
+  }
   return <Drawer title={`Behind the numbers · ${VIEW_LABEL[view]}`} closeHref={closeHref}>{content}</Drawer>;
 }
 
@@ -130,7 +150,8 @@ function Header({ clubs, club, state, meta }: { clubs: Club[]; club: Club; state
       <div className="mx-auto flex max-w-6xl flex-wrap items-end justify-between gap-x-6 gap-y-3 px-4 pb-4 pt-5 sm:px-6 sm:pt-7">
         <div className="flex min-w-0 flex-col gap-1">
           <Link href="/" className="text-xs font-medium text-ink-3 hover:text-ink">Club Insights</Link>
-          <ClubSwitcher clubs={clubs} state={state} current={club.id} />
+          {/* key: remount per club, so the switch-in-progress state never outlives the switch. */}
+          <ClubSwitcher key={club.id} clubs={clubs} state={state} current={club.id} />
         </div>
         {meta && (
           <p className="text-sm text-ink-2 sm:text-right">

@@ -1,5 +1,5 @@
 import type {
-  Club, Meta, PlayerFilter, PlayerRow, SessionDetail, SessionFilter, SessionRow, Summary, Weekly,
+  Club, Meta, Pagination, PlayerFilter, PlayerRow, SessionDetail, SessionFilter, SessionRow, Summary, Weekly,
 } from "./types";
 
 // Server components call the API directly; the browser never needs to reach it.
@@ -33,18 +33,25 @@ const qs = (params: Record<string, string | undefined>) => {
   return s ? `?${s}` : "";
 };
 
+export interface PageParams {
+  page?: number;
+  pageSize?: number;
+}
+
+const pageQs = (p: PageParams = {}) => ({ page: p.page?.toString(), pageSize: p.pageSize?.toString() });
+
 export const api = {
   clubs: () => get<{ data: Club[] }>("/api/clubs").then((r) => r.data),
   summary: (clubId: string, range: RangeParams) =>
     get<{ data: Summary; meta: Meta }>(`/api/clubs/${clubId}/summary${qs({ ...range })}`),
   weekly: (clubId: string, range: RangeParams) =>
     get<{ data: Weekly; meta: Meta }>(`/api/clubs/${clubId}/weekly${qs({ ...range })}`),
-  sessions: (clubId: string, range: RangeParams, filter: SessionFilter) =>
-    get<{ data: { filter: SessionFilter; sessions: SessionRow[] }; meta: Meta }>(
-      `/api/clubs/${clubId}/sessions${qs({ ...range, filter })}`),
-  players: (clubId: string, range: RangeParams, filter: PlayerFilter) =>
-    get<{ data: { filter: PlayerFilter; players: PlayerRow[] }; meta: Meta }>(
-      `/api/clubs/${clubId}/players${qs({ ...range, filter })}`),
+  sessions: (clubId: string, range: RangeParams, filter: SessionFilter, page?: PageParams) =>
+    get<{ data: { filter: SessionFilter; sessions: SessionRow[]; pagination: Pagination }; meta: Meta }>(
+      `/api/clubs/${clubId}/sessions${qs({ ...range, filter, ...pageQs(page) })}`),
+  players: (clubId: string, range: RangeParams, filter: PlayerFilter, page?: PageParams) =>
+    get<{ data: { filter: PlayerFilter; players: PlayerRow[]; pagination: Pagination }; meta: Meta }>(
+      `/api/clubs/${clubId}/players${qs({ ...range, filter, ...pageQs(page) })}`),
   session: (clubId: string, sessionId: string) =>
     get<{ data: SessionDetail }>(`/api/clubs/${clubId}/sessions/${sessionId}`).then((r) => r.data),
 };

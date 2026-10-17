@@ -12,8 +12,8 @@ math or interpret raw attendance values.
 | GET | `/api/clubs/:id` | One club. |
 | GET | `/api/clubs/:id/summary?from&to` | The three metrics for the range and the previous period, with changes, coverage and definitions. |
 | GET | `/api/clubs/:id/weekly?from&to` | All three metrics for every Monday–Sunday week overlapping the range. |
-| GET | `/api/clubs/:id/sessions?from&to&filter` | The sessions behind a number. `filter`: `held` (default), `with_no_shows`, `attendance_not_recorded`. Newest first. |
-| GET | `/api/clubs/:id/players?from&to&filter` | The players behind a number. `filter`: `active` (default), `no_show`. |
+| GET | `/api/clubs/:id/sessions?from&to&filter&page&pageSize` | The sessions behind a number. `filter`: `held` (default), `with_no_shows`, `attendance_not_recorded`. Newest first. |
+| GET | `/api/clubs/:id/players?from&to&filter&page&pageSize` | The players behind a number. `filter`: `active` (default), `no_show`. |
 | GET | `/api/clubs/:id/sessions/:sessionId` | One session, with each booking labelled `attended`, `no_show` or `not_recorded`, plus a count of cancelled bookings. |
 
 ## Query parameters
@@ -21,6 +21,9 @@ math or interpret raw attendance values.
 - `from` and `to` are inclusive local dates (`YYYY-MM-DD`) in the club's time zone.
 - Pass both or neither. Without them, the range is the last four complete weeks before now.
 - The range can be at most 366 days and must not start after today.
+- Lists (`/sessions`, `/players`) are paged: `page` (from 1, default 1) and `pageSize` (1–200, default 50).
+  Each list response has `pagination: { page, pageSize, total, totalPages }`. `total` is all rows across pages,
+  so it always equals the headline number the list is behind. A page past the end returns the last page.
 
 ## Response shape
 

@@ -64,7 +64,7 @@ npm test                      # repo root: starts and seeds Postgres if needed, 
 npm --prefix backend test     # tests only; the API tests are skipped, with a message, if there is no seeded database
 ```
 
-The tests use Vitest and live in `backend/test`. There are 64 of them.
+The tests use Vitest and live in `backend/test`. There are 67 of them.
 
 | File | What it checks |
 |---|---|
@@ -103,4 +103,13 @@ each will appear, and three habits that make the numbers trustworthy from the fi
 Design: one accent (court green) carries the data; red and amber only mean "worse" and "read with care", always
 with an arrow or words as well. Be Vietnam Pro renders Vietnamese names properly. Light and dark themes come
 from the same tokens in `globals.css`. Built for a laptop; on a phone the columns stack and wide tables scroll
-inside their own box, never the page. Loading, error and bad-range states are designed too.
+inside their own box, never the page. Error and bad-range states are designed too.
+
+The drill-down lists are paged, 25 rows a page, with the page in the URL (`&page=`). Switching list, club or
+dates goes back to page 1. Where a session or a player has no attendance taken, the attended and no-show
+cells show "—", never 0.
+
+There is deliberately **no `loading.tsx`**. It wraps the page in a Suspense boundary, and with only the query
+string changing (club, dates, drawer) the router's transition stayed pending: the old screen sat frozen for up
+to 18 s although the data had arrived in 0.2 s. Without it, every navigation takes 50–300 ms. The pending
+state shows as "Updating…" or "Loading…" next to the control that started it.

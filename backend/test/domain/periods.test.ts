@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { resolveRange } from "../../src/application/services/ClubPeriodReader.js";
 import { ValidationError } from "../../src/application/errors.js";
+import { paginate } from "../../src/application/services/paginate.js";
 import { change } from "../../src/domain/metrics/metrics.js";
 import { lengthInDays, previousPeriod } from "../../src/domain/time/DateRange.js";
 import { NOW, TZ } from "../builders.js";
@@ -62,5 +63,25 @@ describe("resolving the requested range", () => {
   ])("rejects %o", (input, message) => {
     expect(() => resolveRange(input, TZ, NOW)).toThrow(ValidationError);
     expect(() => resolveRange(input, TZ, NOW)).toThrow(message);
+  });
+});
+
+describe("paging a list", () => {
+  const rows = Array.from({ length: 7 }, (_, i) => i + 1);
+
+  it("cuts pages in order and reports the total", () => {
+    expect(paginate(rows, { page: 2, pageSize: 3 })).toEqual({
+      items: [4, 5, 6],
+      pagination: { page: 2, pageSize: 3, total: 7, totalPages: 3 },
+    });
+    expect(paginate(rows, { page: 3, pageSize: 3 }).items).toEqual([7]);
+  });
+
+  it("clamps a page past the end to the last page, and an empty list to one empty page", () => {
+    expect(paginate(rows, { page: 9, pageSize: 3 }).pagination.page).toBe(3);
+    expect(paginate([], { page: 2, pageSize: 3 })).toEqual({
+      items: [],
+      pagination: { page: 1, pageSize: 3, total: 0, totalPages: 1 },
+    });
   });
 });

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { formatCount, formatRange, formatSessionTime } from "@/lib/format";
-import type { AttendanceStatus, Meta, PlayerRow, SessionDetail, SessionRow } from "@/lib/types";
+import type { AttendanceStatus, Meta, Pagination, PlayerRow, SessionDetail, SessionRow } from "@/lib/types";
 import { hrefWith, type DrillView, type PageState } from "@/lib/url";
 
 export const VIEW_LABEL: Record<DrillView, string> = {
@@ -63,14 +63,59 @@ function Intro({ count, noun, meta, view }: { count: number; noun: string; meta:
   );
 }
 
+/** "Showing 26–50 of 186" with previous / next and page numbers. Every page is a link, so it can be shared. */
+function Pager({ pagination, state }: { pagination: Pagination; state: PageState }) {
+  const { page, pageSize, total, totalPages } = pagination;
+  if (totalPages <= 1) return null;
+  const first = (page - 1) * pageSize + 1;
+  const last = Math.min(page * pageSize, total);
+  // Current page, its neighbours, and the ends; gaps become an ellipsis.
+  const shown = [...new Set([1, page - 1, page, page + 1, totalPages])].filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
+  const pageLink = (p: number) => (
+    <Link href={hrefWith(state, { page: p })} scroll={false} aria-current={p === page ? "page" : undefined}
+      className={`min-w-8 rounded-md px-2 py-1 text-center text-sm tabular ${
+        p === page ? "bg-accent font-semibold text-white dark:text-page" : "text-ink-2 hover:bg-surface-2 hover:text-ink"
+      }`}>
+      {p}
+    </Link>
+  );
+  const step = (p: number, label: string, enabled: boolean) => enabled
+    ? <Link href={hrefWith(state, { page: p })} scroll={false} className="rounded-md px-2 py-1 text-sm text-ink-2 hover:bg-surface-2 hover:text-ink">{label}</Link>
+    : <span aria-disabled className="px-2 py-1 text-sm text-ink-3 opacity-50">{label}</span>;
+  return (
+    <nav aria-label="Pages" className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
+      <p className="text-sm text-ink-3 tabular">Showing {formatCount(first)}–{formatCount(last)} of {formatCount(total)}</p>
+      <div className="flex flex-wrap items-center gap-1">
+        {step(page - 1, "← Previous", page > 1)}
+        {shown.map((p, i) => (
+          <span key={p} className="flex items-center gap-1">
+            {i > 0 && p - shown[i - 1] > 1 && <span className="px-1 text-ink-3">…</span>}
+            {pageLink(p)}
+          </span>
+        ))}
+        {step(page + 1, "Next →", page < totalPages)}
+      </div>
+    </nav>
+  );
+}
+
+/** Attendance counts only exist where attendance was taken; elsewhere they are unknown, never 0. */
+const Unknown = () => <span className="text-unknown" title="Attendance wasn't taken">—</span>;
+
 const th = "py-2 pr-3 font-medium whitespace-nowrap";
 const td = "py-2.5 pr-3 align-top";
 
-export function SessionsTable({ rows, meta, state, view }: { rows: SessionRow[]; meta: Meta; state: PageState; view: DrillView }) {
+export function SessionsTable({ rows, pagination, meta, state, view }: {
+  rows: SessionRow[];
+  pagination: Pagination;
+  meta: Meta;
+  state: PageState;
+  view: DrillView;
+}) {
   return (
     <>
       <Tabs state={state} view={view} />
-      <Intro count={rows.length} noun={rows.length === 1 ? "session" : "sessions"} meta={meta} view={view} />
+      <Intro count={pagination.total} noun={pagination.total === 1 ? "session" : "sessions"} meta={meta} view={view} />
       {rows.length === 0 ? (
         <Empty />
       ) : (
@@ -101,8 +146,10 @@ export function SessionsTable({ rows, meta, state, view }: { rows: SessionRow[];
                       </Link>
                     </td>
                     <td className={`${td} text-right`}>{s.confirmedBookings}/{s.capacity}</td>
-                    <td className={`${td} text-right`}>{s.attended}</td>
-                    <td className={`${td} text-right ${s.noShows ? "font-semibold text-bad" : ""}`}>{s.noShows}</td>
+                    <td className={`${td} text-right`}>{s.attendanceStatus === "not_recorded" ? <Unknown /> : s.attended}</td>
+                    <td className={`${td} text-right ${s.noShows ? "font-semibold text-bad" : ""}`}>
+                      {s.attendanceStatus === "not_recorded" ? <Unknown /> : s.noShows}
+                    </td>
                     <td className={`${td} text-right text-ink-2`}>{s.notRecorded}</td>
                     <td className={td}><AttendanceBadge status={s.attendanceStatus} /></td>
                   </tr>
@@ -112,15 +159,22 @@ export function SessionsTable({ rows, meta, state, view }: { rows: SessionRow[];
           </table>
         </div>
       )}
+      <Pager pagination={pagination} state={state} />
     </>
   );
 }
 
-export function PlayersTable({ rows, meta, state, view }: { rows: PlayerRow[]; meta: Meta; state: PageState; view: DrillView }) {
+export function PlayersTable({ rows, pagination, meta, state, view }: {
+  rows: PlayerRow[];
+  pagination: Pagination;
+  meta: Meta;
+  state: PageState;
+  view: DrillView;
+}) {
   return (
     <>
       <Tabs state={state} view={view} />
-      <Intro count={rows.length} noun={rows.length === 1 ? "player" : "players"} meta={meta} view={view} />
+      <Intro count={pagination.total} noun={pagination.total === 1 ? "player" : "players"} meta={meta} view={view} />
       {rows.length === 0 ? (
         <Empty />
       ) : (
@@ -144,8 +198,10 @@ export function PlayersTable({ rows, meta, state, view }: { rows: PlayerRow[]; m
                     <span className="text-xs text-ink-3">{p.id}</span>
                   </td>
                   <td className={`${td} text-right`}>{p.sessionsPlayed}</td>
-                  <td className={`${td} text-right`}>{p.attended}</td>
-                  <td className={`${td} text-right ${p.noShows ? "font-semibold text-bad" : ""}`}>{p.noShows}</td>
+                  <td className={`${td} text-right`}>{p.attended + p.noShows === 0 ? <Unknown /> : p.attended}</td>
+                  <td className={`${td} text-right ${p.noShows ? "font-semibold text-bad" : ""}`}>
+                    {p.attended + p.noShows === 0 ? <Unknown /> : p.noShows}
+                  </td>
                   <td className={`${td} text-right text-ink-2`}>{p.notRecorded}</td>
                   <td className={`${td} whitespace-nowrap text-ink-2`}>
                     {formatSessionTime(p.lastSessionAt, p.lastSessionAt, meta.timezone).day}
@@ -156,9 +212,11 @@ export function PlayersTable({ rows, meta, state, view }: { rows: PlayerRow[]; m
           </table>
           <p className="border-t border-line py-2 text-xs text-ink-3">
             “Played” counts bookings that were attended or where attendance wasn&apos;t taken; it excludes no-shows.
+            “—” means attendance was never taken at this player&apos;s sessions, so attended and no-shows are unknown.
           </p>
         </div>
       )}
+      <Pager pagination={pagination} state={state} />
     </>
   );
 }
@@ -195,15 +253,15 @@ export function SessionDetailView({ session, timezone, backHref }: { session: Se
       </div>
 
       <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {[
+        {([
           ["Booked", `${session.bookings.length}/${session.capacity}`],
-          ["Attended", count("attended")],
-          ["No-show", count("no_show")],
+          ["Attended", session.attendanceStatus === "not_recorded" ? null : count("attended")],
+          ["No-show", session.attendanceStatus === "not_recorded" ? null : count("no_show")],
           ["Not recorded", count("not_recorded")],
-        ].map(([k, v]) => (
+        ] as [string, string | number | null][]).map(([k, v]) => (
           <div key={k} className="border-l-2 border-line py-1 pl-3">
             <dt className="text-xs text-ink-2">{k}</dt>
-            <dd className="text-xl font-semibold text-ink tabular">{v}</dd>
+            <dd className="text-xl font-semibold text-ink tabular">{v === null ? <Unknown /> : v}</dd>
           </div>
         ))}
       </dl>
