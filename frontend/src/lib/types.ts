@@ -4,7 +4,8 @@ export interface Club {
   id: string;
   name: string;
   timezone: string;
-  createdAt: string;
+  /** YYYY-MM-DD, in the club's time zone. */
+  createdOn: string;
 }
 
 export interface Range {

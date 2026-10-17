@@ -15,14 +15,17 @@ interface SessionRow {
   bookings: BookingFact[];
 }
 
-// Sessions with their confirmed bookings in one round trip. Cancelled bookings are only counted.
+// Sessions with their live (booked) bookings in one round trip. Cancelled bookings are only counted.
+// Attendance is taken per session: when attendance_recorded is false every booking's attendance is
+// unknown (NULL), whatever the attended column says.
 const SELECT_SESSIONS = `
   SELECT s.id, s.club_id, s.title, s.starts_at, s.ends_at, s.capacity, s.status,
          count(b.id) FILTER (WHERE b.status = 'cancelled')::int AS cancelled_bookings,
          COALESCE(
            json_agg(json_build_object(
-             'bookingId', b.id, 'playerId', p.id, 'playerName', p.name, 'attended', b.attended
-           ) ORDER BY p.name) FILTER (WHERE b.status = 'confirmed'),
+             'bookingId', b.id, 'playerId', p.id, 'playerName', p.name,
+             'attended', CASE WHEN s.attendance_recorded THEN b.attended END
+           ) ORDER BY p.name, p.id) FILTER (WHERE b.status = 'booked'),
            '[]'
          ) AS bookings
   FROM sessions s

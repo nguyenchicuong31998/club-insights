@@ -15,7 +15,7 @@ const VIEW_EXPLAINER: Record<DrillView, (m: Meta) => string> = {
   "sessions:held": (m) => m.definitions.sessionsHeld,
   "players:active": (m) => m.definitions.activePlayers,
   "players:no_show": () => "Players with at least one booking marked as did-not-attend. Sessions without attendance can't add to this list.",
-  "sessions:with_no_shows": () => "Held sessions where at least one confirmed booking was marked as did-not-attend.",
+  "sessions:with_no_shows": () => "Held sessions where at least one booking was marked as did-not-attend.",
   "sessions:attendance_not_recorded": () =>
     "Held sessions with at least one booking whose attendance wasn't taken. No-shows at these bookings are unknown, so they are left out of the no-show rate.",
 };
@@ -139,7 +139,10 @@ export function PlayersTable({ rows, meta, state, view }: { rows: PlayerRow[]; m
             <tbody>
               {rows.map((p) => (
                 <tr key={p.id} className="border-b border-line last:border-0">
-                  <td className={`${td} pl-3 font-medium text-ink`}>{p.name}</td>
+                  <td className={`${td} pl-3`}>
+                    <span className="font-medium text-ink">{p.name}</span>{" "}
+                    <span className="text-xs text-ink-3">{p.id}</span>
+                  </td>
                   <td className={`${td} text-right`}>{p.sessionsPlayed}</td>
                   <td className={`${td} text-right`}>{p.attended}</td>
                   <td className={`${td} text-right ${p.noShows ? "font-semibold text-bad" : ""}`}>{p.noShows}</td>
@@ -210,7 +213,9 @@ export function SessionDetailView({ session, timezone, backHref }: { session: Se
           const a = ATTENDANCE_LABEL[b.attendance];
           return (
             <li key={b.bookingId} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
-              <span className="text-ink">{b.playerName}</span>
+              <span>
+                <span className="text-ink">{b.playerName}</span> <span className="text-xs text-ink-3">{b.playerId}</span>
+              </span>
               <span className={`inline-flex items-center gap-1.5 font-medium ${a.cls}`}>
                 <span aria-hidden>{a.icon}</span>
                 {a.label}
@@ -218,7 +223,7 @@ export function SessionDetailView({ session, timezone, backHref }: { session: Se
             </li>
           );
         })}
-        {session.bookings.length === 0 && <li className="px-3 py-4 text-center text-sm text-ink-2">No confirmed bookings.</li>}
+        {session.bookings.length === 0 && <li className="px-3 py-4 text-center text-sm text-ink-2">No bookings.</li>}
       </ul>
       {session.cancelledBookings > 0 && (
         <p className="text-sm text-ink-2">

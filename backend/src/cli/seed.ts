@@ -2,7 +2,7 @@
  * Loads backend/data/*.csv into the database, replacing whatever is there.
  *   npm run db:seed                 always reload
  *   npm run db:seed -- --if-empty   only when the clubs table is empty (used by `npm run dev`)
- * Invalid rows are skipped and listed. Exits non-zero if a table's count does not match the valid rows read.
+ * Invalid rows are skipped and listed; rows kept with a corrected value are listed too. Exits non-zero if a table's count does not match the valid rows read.
  */
 import { fileURLToPath } from "node:url";
 import { config } from "../config.js";
@@ -18,13 +18,14 @@ try {
   if (ifEmpty && !(await isDatabaseEmpty(pool))) {
     console.log("Database already has data; skipping seed (run `npm run db:seed` to reload).");
   } else {
-    const { data, csvRows, rejected } = await readCsvData(dataDir);
+    const { data, csvRows, rejected, adjusted } = await readCsvData(dataDir);
     const loaded = await writeSeed(pool, data);
 
     console.table(Object.fromEntries((Object.keys(csvRows) as (keyof typeof csvRows)[]).map((table) => [
       table, { "csv rows": csvRows[table], valid: data[table].length, "in database": loaded[table] },
     ])));
     for (const r of rejected) console.warn(`rejected ${r.file}:${r.line} ${r.reason}`);
+    for (const r of adjusted) console.warn(`adjusted ${r.file}:${r.line} ${r.reason}`);
 
     const mismatched = (Object.keys(loaded) as (keyof typeof loaded)[]).filter((t) => loaded[t] !== data[t].length);
     if (mismatched.length) {

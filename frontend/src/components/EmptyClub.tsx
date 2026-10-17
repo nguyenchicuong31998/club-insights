@@ -1,4 +1,4 @@
-import { formatDateTime } from "@/lib/format";
+import { formatDateTime, formatDay } from "@/lib/format";
 import type { Meta, Summary } from "@/lib/types";
 
 /** A club with no held sessions gets an explanation of what will appear, never a wall of zeros. */
@@ -19,7 +19,7 @@ export function EmptyClub({ summary, meta }: { summary: Summary; meta: Meta }) {
         <p className="text-sm font-semibold uppercase tracking-wide text-accent">New club</p>
         <h2 className="text-2xl font-semibold text-ink">{club.name} hasn&apos;t held a session yet</h2>
         <p className="max-w-2xl text-ink-2">
-          The club was created on {formatDateTime(club.createdAt, club.timezone)}.{" "}
+          The club was created on {formatDay(club.createdOn, { weekday: true, year: true })}.{" "}
           {firstSessionAt
             ? `The first session is scheduled for ${formatDateTime(firstSessionAt, club.timezone)}; numbers start from there.`
             : "No sessions are scheduled yet. Once sessions are held, this page fills in automatically."}

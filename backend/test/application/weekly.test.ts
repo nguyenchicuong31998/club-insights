@@ -10,7 +10,7 @@ import type { SessionRepository } from "../../src/domain/repositories/SessionRep
 import { FixedClock } from "../../src/infrastructure/clock/FixedClock.js";
 import { booking, NOW, session, TZ } from "../builders.js";
 
-const club: Club = { id: "c1", name: "Test Club", timezone: TZ, createdAt: new Date("2026-01-01T00:00:00Z") };
+const club: Club = { id: "c1", name: "Test Club", timezone: TZ, createdOn: "2026-01-01" };
 
 function reader(sessions: SessionFacts[]) {
   const clubs: ClubRepository = {

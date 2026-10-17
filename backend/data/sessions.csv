@@ -1,169 +1,196 @@
-id,club_id,title,starts_at,ends_at,capacity,status
-ses_0001,clb_saigon,Early Bird Open Play,2026-04-05T23:00:00Z,2026-04-06T01:00:00Z,12,scheduled
-ses_0002,clb_saigon,Monday Social,2026-04-06T11:30:00Z,2026-04-06T13:30:00Z,16,scheduled
-ses_0003,clb_saigon,Intermediate Drills,2026-04-08T11:30:00Z,2026-04-08T13:30:00Z,12,scheduled
-ses_0004,clb_saigon,Friday Night Play,2026-04-10T12:00:00Z,2026-04-10T14:00:00Z,16,scheduled
-ses_0005,clb_saigon,Weekend Open Play,2026-04-11T00:00:00Z,2026-04-11T02:30:00Z,20,scheduled
-ses_0006,clb_saigon,Sunday Ladder,2026-04-12T13:00:00Z,2026-04-12T15:00:00Z,16,scheduled
-ses_0007,clb_saigon,Early Bird Open Play,2026-04-12T23:00:00Z,2026-04-13T01:00:00Z,12,scheduled
-ses_0008,clb_saigon,Monday Social,2026-04-13T11:30:00Z,2026-04-13T13:30:00Z,16,scheduled
-ses_0009,clb_saigon,Intermediate Drills,2026-04-15T11:30:00Z,2026-04-15T13:30:00Z,12,scheduled
-ses_0010,clb_saigon,Friday Night Play,2026-04-17T12:00:00Z,2026-04-17T14:00:00Z,16,scheduled
-ses_0011,clb_saigon,Weekend Open Play,2026-04-18T00:00:00Z,2026-04-18T02:30:00Z,20,scheduled
-ses_0012,clb_saigon,Sunday Ladder,2026-04-19T13:00:00Z,2026-04-19T15:00:00Z,16,scheduled
-ses_0013,clb_saigon,Early Bird Open Play,2026-04-19T23:00:00Z,2026-04-20T01:00:00Z,12,scheduled
-ses_0014,clb_saigon,Monday Social,2026-04-20T11:30:00Z,2026-04-20T13:30:00Z,16,scheduled
-ses_0015,clb_saigon,Intermediate Drills,2026-04-22T11:30:00Z,2026-04-22T13:30:00Z,12,scheduled
-ses_0016,clb_saigon,Friday Night Play,2026-04-24T12:00:00Z,2026-04-24T14:00:00Z,16,scheduled
-ses_0017,clb_saigon,Weekend Open Play,2026-04-25T00:00:00Z,2026-04-25T02:30:00Z,20,scheduled
-ses_0018,clb_saigon,Sunday Ladder,2026-04-26T13:00:00Z,2026-04-26T15:00:00Z,16,scheduled
-ses_0019,clb_saigon,Early Bird Open Play,2026-04-26T23:00:00Z,2026-04-27T01:00:00Z,12,scheduled
-ses_0020,clb_saigon,Monday Social,2026-04-27T11:30:00Z,2026-04-27T13:30:00Z,16,scheduled
-ses_0021,clb_saigon,Intermediate Drills,2026-04-29T11:30:00Z,2026-04-29T13:30:00Z,12,scheduled
-ses_0022,clb_saigon,Friday Night Play,2026-05-01T12:00:00Z,2026-05-01T14:00:00Z,16,scheduled
-ses_0023,clb_saigon,Weekend Open Play,2026-05-02T00:00:00Z,2026-05-02T02:30:00Z,20,scheduled
-ses_0024,clb_saigon,Sunday Ladder,2026-05-03T13:00:00Z,2026-05-03T15:00:00Z,16,scheduled
-ses_0025,clb_saigon,Early Bird Open Play,2026-05-03T23:00:00Z,2026-05-04T01:00:00Z,12,scheduled
-ses_0026,clb_saigon,Monday Social,2026-05-04T11:30:00Z,2026-05-04T13:30:00Z,16,scheduled
-ses_0027,clb_saigon,Intermediate Drills,2026-05-06T11:30:00Z,2026-05-06T13:30:00Z,12,cancelled
-ses_0028,clb_saigon,Friday Night Play,2026-05-08T12:00:00Z,2026-05-08T14:00:00Z,16,scheduled
-ses_0029,clb_saigon,Weekend Open Play,2026-05-09T00:00:00Z,2026-05-09T02:30:00Z,20,scheduled
-ses_0030,clb_saigon,Sunday Ladder,2026-05-10T13:00:00Z,2026-05-10T15:00:00Z,16,scheduled
-ses_0031,clb_saigon,Early Bird Open Play,2026-05-10T23:00:00Z,2026-05-11T01:00:00Z,12,scheduled
-ses_0032,clb_saigon,Monday Social,2026-05-11T11:30:00Z,2026-05-11T13:30:00Z,16,scheduled
-ses_0033,clb_saigon,Intermediate Drills,2026-05-13T11:30:00Z,2026-05-13T13:30:00Z,12,scheduled
-ses_0034,clb_saigon,Friday Night Play,2026-05-15T12:00:00Z,2026-05-15T14:00:00Z,16,scheduled
-ses_0035,clb_saigon,Weekend Open Play,2026-05-16T00:00:00Z,2026-05-16T02:30:00Z,20,scheduled
-ses_0036,clb_saigon,Sunday Ladder,2026-05-17T13:00:00Z,2026-05-17T15:00:00Z,16,scheduled
-ses_0037,clb_saigon,Early Bird Open Play,2026-05-17T23:00:00Z,2026-05-18T01:00:00Z,12,scheduled
-ses_0038,clb_saigon,Monday Social,2026-05-18T11:30:00Z,2026-05-18T13:30:00Z,16,scheduled
-ses_0039,clb_saigon,Intermediate Drills,2026-05-20T11:30:00Z,2026-05-20T13:30:00Z,12,scheduled
-ses_0040,clb_saigon,Friday Night Play,2026-05-22T12:00:00Z,2026-05-22T14:00:00Z,16,scheduled
-ses_0041,clb_saigon,Weekend Open Play,2026-05-23T00:00:00Z,2026-05-23T02:30:00Z,20,scheduled
-ses_0042,clb_saigon,Sunday Ladder,2026-05-24T13:00:00Z,2026-05-24T15:00:00Z,16,scheduled
-ses_0043,clb_saigon,Early Bird Open Play,2026-05-24T23:00:00Z,2026-05-25T01:00:00Z,12,scheduled
-ses_0044,clb_saigon,Monday Social,2026-05-25T11:30:00Z,2026-05-25T13:30:00Z,16,scheduled
-ses_0045,clb_saigon,Intermediate Drills,2026-05-27T11:30:00Z,2026-05-27T13:30:00Z,12,scheduled
-ses_0046,clb_saigon,Friday Night Play,2026-05-29T12:00:00Z,2026-05-29T14:00:00Z,16,scheduled
-ses_0047,clb_saigon,Weekend Open Play,2026-05-30T00:00:00Z,2026-05-30T02:30:00Z,20,scheduled
-ses_0048,clb_saigon,Sunday Ladder,2026-05-31T13:00:00Z,2026-05-31T15:00:00Z,16,scheduled
-ses_0049,clb_saigon,Early Bird Open Play,2026-05-31T23:00:00Z,2026-06-01T01:00:00Z,12,scheduled
-ses_0050,clb_saigon,Monday Social,2026-06-01T11:30:00Z,2026-06-01T13:30:00Z,16,scheduled
-ses_0051,clb_saigon,Intermediate Drills,2026-06-03T11:30:00Z,2026-06-03T13:30:00Z,12,scheduled
-ses_0052,clb_saigon,Friday Night Play,2026-06-05T12:00:00Z,2026-06-05T14:00:00Z,16,scheduled
-ses_0053,clb_saigon,Weekend Open Play,2026-06-06T00:00:00Z,2026-06-06T02:30:00Z,20,scheduled
-ses_0054,clb_saigon,Sunday Ladder,2026-06-07T13:00:00Z,2026-06-07T15:00:00Z,16,scheduled
-ses_0055,clb_saigon,Early Bird Open Play,2026-06-07T23:00:00Z,2026-06-08T01:00:00Z,12,scheduled
-ses_0056,clb_saigon,Monday Social,2026-06-08T11:30:00Z,2026-06-08T13:30:00Z,16,scheduled
-ses_0057,clb_saigon,Intermediate Drills,2026-06-10T11:30:00Z,2026-06-10T13:30:00Z,12,scheduled
-ses_0058,clb_saigon,Friday Night Play,2026-06-12T12:00:00Z,2026-06-12T14:00:00Z,16,scheduled
-ses_0059,clb_saigon,Weekend Open Play,2026-06-13T00:00:00Z,2026-06-13T02:30:00Z,20,scheduled
-ses_0060,clb_saigon,Sunday Ladder,2026-06-14T13:00:00Z,2026-06-14T15:00:00Z,16,scheduled
-ses_0061,clb_saigon,Early Bird Open Play,2026-06-14T23:00:00Z,2026-06-15T01:00:00Z,12,scheduled
-ses_0062,clb_saigon,Monday Social,2026-06-15T11:30:00Z,2026-06-15T13:30:00Z,16,scheduled
-ses_0063,clb_saigon,Intermediate Drills,2026-06-17T11:30:00Z,2026-06-17T13:30:00Z,12,scheduled
-ses_0064,clb_saigon,Friday Night Play,2026-06-19T12:00:00Z,2026-06-19T14:00:00Z,16,scheduled
-ses_0065,clb_saigon,Weekend Open Play,2026-06-20T00:00:00Z,2026-06-20T02:30:00Z,20,scheduled
-ses_0066,clb_saigon,Sunday Ladder,2026-06-21T13:00:00Z,2026-06-21T15:00:00Z,16,scheduled
-ses_0067,clb_saigon,Early Bird Open Play,2026-06-21T23:00:00Z,2026-06-22T01:00:00Z,12,scheduled
-ses_0068,clb_saigon,Monday Social,2026-06-22T11:30:00Z,2026-06-22T13:30:00Z,16,scheduled
-ses_0069,clb_saigon,Intermediate Drills,2026-06-24T11:30:00Z,2026-06-24T13:30:00Z,12,scheduled
-ses_0070,clb_saigon,Friday Night Play,2026-06-26T12:00:00Z,2026-06-26T14:00:00Z,16,scheduled
-ses_0071,clb_saigon,Weekend Open Play,2026-06-27T00:00:00Z,2026-06-27T02:30:00Z,20,scheduled
-ses_0072,clb_saigon,Sunday Ladder,2026-06-28T13:00:00Z,2026-06-28T15:00:00Z,16,scheduled
-ses_0073,clb_saigon,Early Bird Open Play,2026-06-28T23:00:00Z,2026-06-29T01:00:00Z,12,scheduled
-ses_0074,clb_saigon,Monday Social,2026-06-29T11:30:00Z,2026-06-29T13:30:00Z,16,scheduled
-ses_0075,clb_saigon,Intermediate Drills,2026-07-01T11:30:00Z,2026-07-01T13:30:00Z,12,scheduled
-ses_0076,clb_saigon,Friday Night Play,2026-07-03T12:00:00Z,2026-07-03T14:00:00Z,16,scheduled
-ses_0077,clb_saigon,Weekend Open Play,2026-07-04T00:00:00Z,2026-07-04T02:30:00Z,20,scheduled
-ses_0078,clb_saigon,Sunday Ladder,2026-07-05T13:00:00Z,2026-07-05T15:00:00Z,16,scheduled
-ses_0079,clb_saigon,Early Bird Open Play,2026-07-05T23:00:00Z,2026-07-06T01:00:00Z,12,scheduled
-ses_0080,clb_saigon,Monday Social,2026-07-06T11:30:00Z,2026-07-06T13:30:00Z,16,scheduled
-ses_0081,clb_saigon,Intermediate Drills,2026-07-08T11:30:00Z,2026-07-08T13:30:00Z,12,scheduled
-ses_0082,clb_saigon,Friday Night Play,2026-07-10T12:00:00Z,2026-07-10T14:00:00Z,16,scheduled
-ses_0083,clb_saigon,Weekend Open Play,2026-07-11T00:00:00Z,2026-07-11T02:30:00Z,20,scheduled
-ses_0084,clb_saigon,Sunday Ladder,2026-07-12T13:00:00Z,2026-07-12T15:00:00Z,16,scheduled
-ses_0085,clb_saigon,Early Bird Open Play,2026-07-12T23:00:00Z,2026-07-13T01:00:00Z,12,scheduled
-ses_0086,clb_saigon,Monday Social,2026-07-13T11:30:00Z,2026-07-13T13:30:00Z,16,scheduled
-ses_0087,clb_saigon,Intermediate Drills,2026-07-15T11:30:00Z,2026-07-15T13:30:00Z,12,scheduled
-ses_0088,clb_saigon,Friday Night Play,2026-07-17T12:00:00Z,2026-07-17T14:00:00Z,16,scheduled
-ses_0089,clb_saigon,Weekend Open Play,2026-07-18T00:00:00Z,2026-07-18T02:30:00Z,20,scheduled
-ses_0090,clb_saigon,Sunday Ladder,2026-07-19T13:00:00Z,2026-07-19T15:00:00Z,16,scheduled
-ses_0091,clb_saigon,Early Bird Open Play,2026-07-19T23:00:00Z,2026-07-20T01:00:00Z,12,scheduled
-ses_0092,clb_saigon,Monday Social,2026-07-20T11:30:00Z,2026-07-20T13:30:00Z,16,scheduled
-ses_0093,clb_saigon,Intermediate Drills,2026-07-22T11:30:00Z,2026-07-22T13:30:00Z,12,scheduled
-ses_0094,clb_saigon,Friday Night Play,2026-07-24T12:00:00Z,2026-07-24T14:00:00Z,16,scheduled
-ses_0095,clb_saigon,Weekend Open Play,2026-07-25T00:00:00Z,2026-07-25T02:30:00Z,20,scheduled
-ses_0096,clb_saigon,Sunday Ladder,2026-07-26T13:00:00Z,2026-07-26T15:00:00Z,16,scheduled
-ses_0097,clb_saigon,Early Bird Open Play,2026-07-26T23:00:00Z,2026-07-27T01:00:00Z,12,scheduled
-ses_0098,clb_saigon,Monday Social,2026-07-27T11:30:00Z,2026-07-27T13:30:00Z,16,scheduled
-ses_0099,clb_saigon,Intermediate Drills,2026-07-29T11:30:00Z,2026-07-29T13:30:00Z,12,scheduled
-ses_0100,clb_saigon,Friday Night Play,2026-07-31T12:00:00Z,2026-07-31T14:00:00Z,16,scheduled
-ses_0101,clb_saigon,Weekend Open Play,2026-08-01T00:00:00Z,2026-08-01T02:30:00Z,20,scheduled
-ses_0102,clb_saigon,Sunday Ladder,2026-08-02T13:00:00Z,2026-08-02T15:00:00Z,16,scheduled
-ses_0103,clb_saigon,Early Bird Open Play,2026-08-02T23:00:00Z,2026-08-03T01:00:00Z,12,scheduled
-ses_0104,clb_saigon,Monday Social,2026-08-03T11:30:00Z,2026-08-03T13:30:00Z,16,scheduled
-ses_0105,clb_saigon,Intermediate Drills,2026-08-05T11:30:00Z,2026-08-05T13:30:00Z,12,scheduled
-ses_0106,clb_saigon,Friday Night Play,2026-08-07T12:00:00Z,2026-08-07T14:00:00Z,16,scheduled
-ses_0107,clb_saigon,Weekend Open Play,2026-08-08T00:00:00Z,2026-08-08T02:30:00Z,20,scheduled
-ses_0108,clb_saigon,Sunday Ladder,2026-08-09T13:00:00Z,2026-08-09T15:00:00Z,16,scheduled
-ses_0109,clb_saigon,Early Bird Open Play,2026-08-09T23:00:00Z,2026-08-10T01:00:00Z,12,scheduled
-ses_0110,clb_saigon,Monday Social,2026-08-10T11:30:00Z,2026-08-10T13:30:00Z,16,scheduled
-ses_0111,clb_saigon,Intermediate Drills,2026-08-12T11:30:00Z,2026-08-12T13:30:00Z,12,scheduled
-ses_0112,clb_saigon,Friday Night Play,2026-08-14T12:00:00Z,2026-08-14T14:00:00Z,16,scheduled
-ses_0113,clb_saigon,Weekend Open Play,2026-08-15T00:00:00Z,2026-08-15T02:30:00Z,20,scheduled
-ses_0114,clb_saigon,Sunday Ladder,2026-08-16T13:00:00Z,2026-08-16T15:00:00Z,16,scheduled
-ses_0115,clb_saigon,Early Bird Open Play,2026-08-16T23:00:00Z,2026-08-17T01:00:00Z,12,scheduled
-ses_0116,clb_saigon,Monday Social,2026-08-17T11:30:00Z,2026-08-17T13:30:00Z,16,scheduled
-ses_0117,clb_saigon,Intermediate Drills,2026-08-19T11:30:00Z,2026-08-19T13:30:00Z,12,scheduled
-ses_0118,clb_saigon,Friday Night Play,2026-08-21T12:00:00Z,2026-08-21T14:00:00Z,16,scheduled
-ses_0119,clb_saigon,Weekend Open Play,2026-08-22T00:00:00Z,2026-08-22T02:30:00Z,20,scheduled
-ses_0120,clb_saigon,Sunday Ladder,2026-08-23T13:00:00Z,2026-08-23T15:00:00Z,16,scheduled
-ses_0121,clb_saigon,Early Bird Open Play,2026-08-23T23:00:00Z,2026-08-24T01:00:00Z,12,scheduled
-ses_0122,clb_saigon,Monday Social,2026-08-24T11:30:00Z,2026-08-24T13:30:00Z,16,scheduled
-ses_0123,clb_saigon,Intermediate Drills,2026-08-26T11:30:00Z,2026-08-26T13:30:00Z,12,scheduled
-ses_0124,clb_saigon,Friday Night Play,2026-08-28T12:00:00Z,2026-08-28T14:00:00Z,16,scheduled
-ses_0125,clb_saigon,Weekend Open Play,2026-08-29T00:00:00Z,2026-08-29T02:30:00Z,20,scheduled
-ses_0126,clb_saigon,Sunday Ladder,2026-08-30T13:00:00Z,2026-08-30T15:00:00Z,16,scheduled
-ses_0127,clb_saigon,Early Bird Open Play,2026-08-30T23:00:00Z,2026-08-31T01:00:00Z,12,scheduled
-ses_0128,clb_saigon,Monday Social,2026-08-31T11:30:00Z,2026-08-31T13:30:00Z,16,cancelled
-ses_0129,clb_saigon,Intermediate Drills,2026-09-02T11:30:00Z,2026-09-02T13:30:00Z,12,cancelled
-ses_0130,clb_saigon,Friday Night Play,2026-09-04T12:00:00Z,2026-09-04T14:00:00Z,16,scheduled
-ses_0131,clb_saigon,Weekend Open Play,2026-09-05T00:00:00Z,2026-09-05T02:30:00Z,20,scheduled
-ses_0132,clb_saigon,Sunday Ladder,2026-09-06T13:00:00Z,2026-09-06T15:00:00Z,16,scheduled
-ses_0133,clb_saigon,Early Bird Open Play,2026-09-06T23:00:00Z,2026-09-07T01:00:00Z,12,scheduled
-ses_0134,clb_saigon,Monday Social,2026-09-07T11:30:00Z,2026-09-07T13:30:00Z,16,scheduled
-ses_0135,clb_saigon,Intermediate Drills,2026-09-09T11:30:00Z,2026-09-09T13:30:00Z,12,scheduled
-ses_0136,clb_saigon,Friday Night Play,2026-09-11T12:00:00Z,2026-09-11T14:00:00Z,16,scheduled
-ses_0137,clb_saigon,Weekend Open Play,2026-09-12T00:00:00Z,2026-09-12T02:30:00Z,20,scheduled
-ses_0138,clb_saigon,Sunday Ladder,2026-09-13T13:00:00Z,2026-09-13T15:00:00Z,16,scheduled
-ses_0139,clb_saigon,Early Bird Open Play,2026-09-13T23:00:00Z,2026-09-14T01:00:00Z,12,scheduled
-ses_0140,clb_saigon,Monday Social,2026-09-14T11:30:00Z,2026-09-14T13:30:00Z,16,scheduled
-ses_0141,clb_saigon,Intermediate Drills,2026-09-16T11:30:00Z,2026-09-16T13:30:00Z,12,scheduled
-ses_0142,clb_saigon,Friday Night Play,2026-09-18T12:00:00Z,2026-09-18T14:00:00Z,16,scheduled
-ses_0143,clb_saigon,Weekend Open Play,2026-09-19T00:00:00Z,2026-09-19T02:30:00Z,20,cancelled
-ses_0144,clb_saigon,Sunday Ladder,2026-09-20T13:00:00Z,2026-09-20T15:00:00Z,16,scheduled
-ses_0145,clb_saigon,Early Bird Open Play,2026-09-20T23:00:00Z,2026-09-21T01:00:00Z,12,scheduled
-ses_0146,clb_saigon,Monday Social,2026-09-21T11:30:00Z,2026-09-21T13:30:00Z,16,scheduled
-ses_0147,clb_saigon,Intermediate Drills,2026-09-23T11:30:00Z,2026-09-23T13:30:00Z,12,scheduled
-ses_0148,clb_saigon,Friday Night Play,2026-09-25T12:00:00Z,2026-09-25T14:00:00Z,16,scheduled
-ses_0149,clb_saigon,Weekend Open Play,2026-09-26T00:00:00Z,2026-09-26T02:30:00Z,20,scheduled
-ses_0150,clb_saigon,Sunday Ladder,2026-09-27T13:00:00Z,2026-09-27T15:00:00Z,16,scheduled
-ses_0151,clb_saigon,Early Bird Open Play,2026-09-27T23:00:00Z,2026-09-28T01:00:00Z,12,scheduled
-ses_0152,clb_saigon,Monday Social,2026-09-28T11:30:00Z,2026-09-28T13:30:00Z,16,scheduled
-ses_0153,clb_saigon,Intermediate Drills,2026-09-30T11:30:00Z,2026-09-30T13:30:00Z,12,cancelled
-ses_0154,clb_saigon,Friday Night Play,2026-10-02T12:00:00Z,2026-10-02T14:00:00Z,16,scheduled
-ses_0155,clb_saigon,Weekend Open Play,2026-10-03T00:00:00Z,2026-10-03T02:30:00Z,20,scheduled
-ses_0156,clb_saigon,Sunday Ladder,2026-10-04T13:00:00Z,2026-10-04T15:00:00Z,16,scheduled
-ses_0157,clb_saigon,Early Bird Open Play,2026-10-04T23:00:00Z,2026-10-05T01:00:00Z,12,scheduled
-ses_0158,clb_saigon,Monday Social,2026-10-05T11:30:00Z,2026-10-05T13:30:00Z,16,scheduled
-ses_0159,clb_saigon,Intermediate Drills,2026-10-07T11:30:00Z,2026-10-07T13:30:00Z,12,scheduled
-ses_0160,clb_saigon,Friday Night Play,2026-10-09T12:00:00Z,2026-10-09T14:00:00Z,16,scheduled
-ses_0161,clb_saigon,Weekend Open Play,2026-10-10T00:00:00Z,2026-10-10T02:30:00Z,20,scheduled
-ses_0162,clb_saigon,Sunday Ladder,2026-10-11T13:00:00Z,2026-10-11T15:00:00Z,16,scheduled
-ses_0163,clb_saigon,Early Bird Open Play,2026-10-11T23:00:00Z,2026-10-12T01:00:00Z,12,scheduled
-ses_0164,clb_saigon,Monday Social,2026-10-12T11:30:00Z,2026-10-12T13:30:00Z,16,scheduled
-ses_0165,clb_saigon,Intermediate Drills,2026-10-14T11:30:00Z,2026-10-14T13:30:00Z,12,scheduled
-ses_0166,clb_saigon,Friday Night Play,2026-10-16T12:00:00Z,2026-10-16T14:00:00Z,16,scheduled
-ses_0167,clb_saigon,Weekend Open Play,2026-10-17T00:00:00Z,2026-10-17T02:30:00Z,20,scheduled
-ses_0168,clb_saigon,Sunday Ladder,2026-10-18T13:00:00Z,2026-10-18T15:00:00Z,16,scheduled
+session_id,club_id,title,starts_at,duration_minutes,places,status,attendance_recorded
+s0001,club-001,Early Bird Monday,2026-01-04T22:30:00Z,90,12,scheduled,true
+s0002,club-001,Tuesday Open Play,2026-01-06T12:00:00Z,120,12,scheduled,true
+s0003,club-001,Thursday Drills & Games,2026-01-08T12:00:00Z,120,12,scheduled,true
+s0004,club-001,Saturday Morning Social,2026-01-10T00:00:00Z,120,12,scheduled,false
+s0005,club-001,Sunday Ladder,2026-01-11T11:00:00Z,120,12,scheduled,false
+s0006,club-001,Early Bird Monday,2026-01-11T22:30:00Z,90,12,scheduled,false
+s0007,club-001,Tuesday Open Play,2026-01-13T12:00:00Z,120,12,scheduled,true
+s0008,club-001,Thursday Drills & Games,2026-01-15T12:00:00Z,120,12,scheduled,true
+s0009,club-001,Saturday Morning Social,2026-01-17T00:00:00Z,120,12,scheduled,false
+s0010,club-001,Sunday Ladder,2026-01-18T11:00:00Z,120,12,scheduled,true
+s0011,club-001,Early Bird Monday,2026-01-18T22:30:00Z,90,12,scheduled,false
+s0012,club-001,Tuesday Open Play,2026-01-20T12:00:00Z,120,12,scheduled,true
+s0013,club-001,Thursday Drills & Games,2026-01-22T12:00:00Z,120,12,scheduled,true
+s0014,club-001,Saturday Morning Social,2026-01-24T00:00:00Z,120,12,scheduled,true
+s0015,club-001,Sunday Ladder,2026-01-25T11:00:00Z,120,12,scheduled,true
+s0016,club-001,Early Bird Monday,2026-01-25T22:30:00Z,90,12,scheduled,false
+s0017,club-001,Tuesday Open Play,2026-01-27T12:00:00Z,120,12,scheduled,false
+s0018,club-001,Thursday Drills & Games,2026-01-29T12:00:00Z,120,12,scheduled,true
+s0019,club-001,Saturday Morning Social,2026-01-31T00:00:00Z,120,12,scheduled,false
+s0020,club-001,Sunday Ladder,2026-02-01T11:00:00Z,120,12,scheduled,true
+s0021,club-001,Early Bird Monday,2026-02-01T22:30:00Z,90,12,scheduled,false
+s0022,club-001,Tuesday Open Play,2026-02-03T12:00:00Z,120,12,scheduled,true
+s0023,club-001,Thursday Drills & Games,2026-02-05T12:00:00Z,120,12,scheduled,true
+s0024,club-001,Saturday Morning Social,2026-02-07T00:00:00Z,120,12,scheduled,false
+s0025,club-001,Sunday Ladder,2026-02-08T11:00:00Z,120,12,scheduled,true
+s0026,club-001,Early Bird Monday,2026-02-08T22:30:00Z,90,12,scheduled,false
+s0027,club-001,Tuesday Open Play,2026-02-10T12:00:00Z,120,12,scheduled,true
+s0028,club-001,Thursday Drills & Games,2026-02-12T12:00:00Z,120,12,scheduled,true
+s0029,club-001,Saturday Morning Social,2026-02-14T00:00:00Z,120,12,cancelled,false
+s0030,club-001,Sunday Ladder,2026-02-15T11:00:00Z,120,12,cancelled,false
+s0031,club-001,Early Bird Monday,2026-02-15T22:30:00Z,90,12,cancelled,false
+s0032,club-001,Tuesday Open Play,2026-02-17T12:00:00Z,120,12,cancelled,false
+s0033,club-001,Thursday Drills & Games,2026-02-19T12:00:00Z,120,12,cancelled,false
+s0034,club-001,Saturday Morning Social,2026-02-21T00:00:00Z,120,12,cancelled,false
+s0035,club-001,Sunday Ladder,2026-02-22T11:00:00Z,120,12,scheduled,false
+s0036,club-001,Early Bird Monday,2026-02-22T22:30:00Z,90,12,scheduled,false
+s0037,club-001,Tuesday Open Play,2026-02-24T12:00:00Z,120,12,scheduled,true
+s0038,club-001,Thursday Drills & Games,2026-02-26T12:00:00Z,120,12,scheduled,true
+s0039,club-001,Saturday Morning Social,2026-02-28T00:00:00Z,120,12,scheduled,false
+s0040,club-001,Sunday Ladder,2026-03-01T11:00:00Z,120,12,scheduled,true
+s0041,club-001,Early Bird Monday,2026-03-01T22:30:00Z,90,12,scheduled,false
+s0042,club-001,Tuesday Open Play,2026-03-03T12:00:00Z,120,12,scheduled,true
+s0043,club-001,Thursday Drills & Games,2026-03-05T12:00:00Z,120,12,scheduled,false
+s0044,club-001,Saturday Morning Social,2026-03-07T00:00:00Z,120,12,scheduled,false
+s0045,club-001,Sunday Ladder,2026-03-08T11:00:00Z,120,12,scheduled,true
+s0046,club-001,Early Bird Monday,2026-03-08T22:30:00Z,90,12,scheduled,true
+s0047,club-001,Tuesday Open Play,2026-03-10T12:00:00Z,120,12,scheduled,true
+s0048,club-001,Thursday Drills & Games,2026-03-12T12:00:00Z,120,12,scheduled,true
+s0049,club-001,Saturday Morning Social,2026-03-14T00:00:00Z,120,12,cancelled,false
+s0050,club-001,Sunday Ladder,2026-03-15T11:00:00Z,120,12,scheduled,false
+s0051,club-001,Early Bird Monday,2026-03-15T22:30:00Z,90,12,scheduled,true
+s0052,club-001,Tuesday Open Play,2026-03-17T12:00:00Z,120,12,scheduled,true
+s0053,club-001,Thursday Drills & Games,2026-03-19T12:00:00Z,120,12,scheduled,false
+s0054,club-001,Saturday Morning Social,2026-03-21T00:00:00Z,120,12,scheduled,false
+s0055,club-001,Sunday Ladder,2026-03-22T11:00:00Z,120,12,scheduled,false
+s0056,club-001,Early Bird Monday,2026-03-22T22:30:00Z,90,12,scheduled,true
+s0057,club-001,Tuesday Open Play,2026-03-24T12:00:00Z,120,12,scheduled,false
+s0058,club-001,Thursday Drills & Games,2026-03-26T12:00:00Z,120,12,scheduled,true
+s0059,club-001,Saturday Morning Social,2026-03-28T00:00:00Z,120,12,scheduled,true
+s0060,club-001,Sunday Ladder,2026-03-29T11:00:00Z,120,12,scheduled,false
+s0061,club-001,Early Bird Monday,2026-03-29T22:30:00Z,90,12,scheduled,true
+s0062,club-001,Tuesday Open Play,2026-03-31T12:00:00Z,120,12,scheduled,false
+s0063,club-001,Thursday Drills & Games,2026-04-02T12:00:00Z,120,12,scheduled,true
+s0064,club-001,Saturday Morning Social,2026-04-04T00:00:00Z,120,12,scheduled,false
+s0065,club-001,Sunday Ladder,2026-04-05T11:00:00Z,120,12,scheduled,true
+s0066,club-001,Early Bird Monday,2026-04-05T22:30:00Z,90,12,scheduled,false
+s0067,club-001,Tuesday Open Play,2026-04-07T12:00:00Z,120,12,scheduled,true
+s0068,club-001,Thursday Drills & Games,2026-04-09T12:00:00Z,120,12,scheduled,true
+s0069,club-001,Saturday Morning Social,2026-04-11T00:00:00Z,120,12,scheduled,false
+s0070,club-001,Sunday Ladder,2026-04-12T11:00:00Z,120,12,scheduled,false
+s0071,club-001,Early Bird Monday,2026-04-12T22:30:00Z,90,12,scheduled,true
+s0072,club-001,Tuesday Open Play,2026-04-14T12:00:00Z,120,12,scheduled,false
+s0073,club-001,Thursday Drills & Games,2026-04-16T12:00:00Z,120,12,scheduled,true
+s0074,club-001,Saturday Morning Social,2026-04-18T00:00:00Z,120,12,scheduled,false
+s0075,club-001,Sunday Ladder,2026-04-19T11:00:00Z,120,12,scheduled,false
+s0076,club-001,Early Bird Monday,2026-04-19T22:30:00Z,90,12,scheduled,false
+s0077,club-001,Tuesday Open Play,2026-04-21T12:00:00Z,120,12,scheduled,true
+s0078,club-001,Thursday Drills & Games,2026-04-23T12:00:00Z,120,12,scheduled,true
+s0079,club-001,Saturday Morning Social,2026-04-25T00:00:00Z,120,12,scheduled,false
+s0080,club-001,Sunday Ladder,2026-04-26T11:00:00Z,120,12,scheduled,true
+s0081,club-001,Early Bird Monday,2026-04-26T22:30:00Z,90,12,scheduled,false
+s0082,club-001,Tuesday Open Play,2026-04-28T12:00:00Z,120,12,scheduled,true
+s0083,club-001,Thursday Drills & Games,2026-04-30T12:00:00Z,120,12,scheduled,true
+s0084,club-001,Saturday Morning Social,2026-05-02T00:00:00Z,120,12,scheduled,true
+s0085,club-001,Sunday Ladder,2026-05-03T11:00:00Z,120,12,scheduled,true
+s0086,club-001,Early Bird Monday,2026-05-03T22:30:00Z,90,12,scheduled,true
+s0087,club-001,Tuesday Open Play,2026-05-05T12:00:00Z,120,12,scheduled,false
+s0088,club-001,Thursday Drills & Games,2026-05-07T12:00:00Z,120,12,scheduled,true
+s0089,club-001,Saturday Morning Social,2026-05-09T00:00:00Z,120,12,scheduled,false
+s0090,club-001,Sunday Ladder,2026-05-10T11:00:00Z,120,12,scheduled,true
+s0091,club-001,Early Bird Monday,2026-05-10T22:30:00Z,90,12,scheduled,false
+s0092,club-001,Tuesday Open Play,2026-05-12T12:00:00Z,120,12,scheduled,true
+s0093,club-001,Thursday Drills & Games,2026-05-14T12:00:00Z,120,12,cancelled,false
+s0094,club-001,Saturday Morning Social,2026-05-16T00:00:00Z,120,12,scheduled,false
+s0095,club-001,Sunday Ladder,2026-05-17T11:00:00Z,120,12,scheduled,true
+s0096,club-001,Early Bird Monday,2026-05-17T22:30:00Z,90,12,scheduled,false
+s0097,club-001,Tuesday Open Play,2026-05-19T12:00:00Z,120,12,scheduled,false
+s0098,club-001,Thursday Drills & Games,2026-05-21T12:00:00Z,120,12,scheduled,true
+s0099,club-001,Saturday Morning Social,2026-05-23T00:00:00Z,120,12,scheduled,false
+s0100,club-001,Sunday Ladder,2026-05-24T11:00:00Z,120,12,scheduled,true
+s0101,club-001,Early Bird Monday,2026-05-24T22:30:00Z,90,12,scheduled,false
+s0102,club-001,Tuesday Open Play,2026-05-26T12:00:00Z,120,12,scheduled,true
+s0103,club-001,Thursday Drills & Games,2026-05-28T12:00:00Z,120,12,scheduled,true
+s0104,club-001,Saturday Morning Social,2026-05-30T00:00:00Z,120,12,scheduled,false
+s0105,club-001,Sunday Ladder,2026-05-31T11:00:00Z,120,12,scheduled,true
+s0106,club-001,Early Bird Monday,2026-05-31T22:30:00Z,90,16,scheduled,false
+s0107,club-001,Tuesday Open Play,2026-06-02T12:00:00Z,120,16,scheduled,true
+s0108,club-001,Thursday Drills & Games,2026-06-04T12:00:00Z,120,16,scheduled,true
+s0109,club-001,Saturday Morning Social,2026-06-06T00:00:00Z,120,16,scheduled,false
+s0110,club-001,Sunday Ladder,2026-06-07T11:00:00Z,120,16,scheduled,false
+s0111,club-001,Early Bird Monday,2026-06-07T22:30:00Z,90,16,scheduled,false
+s0112,club-001,Tuesday Open Play,2026-06-09T12:00:00Z,120,16,scheduled,true
+s0113,club-001,Thursday Drills & Games,2026-06-11T12:00:00Z,120,16,scheduled,true
+s0114,club-001,Saturday Morning Social,2026-06-13T00:00:00Z,120,16,scheduled,false
+s0115,club-001,Sunday Ladder,2026-06-14T11:00:00Z,120,16,scheduled,true
+s0116,club-001,Early Bird Monday,2026-06-14T22:30:00Z,90,16,scheduled,false
+s0117,club-001,Tuesday Open Play,2026-06-16T12:00:00Z,120,16,scheduled,true
+s0118,club-001,Thursday Drills & Games,2026-06-18T12:00:00Z,120,16,scheduled,true
+s0119,club-001,Saturday Morning Social,2026-06-20T00:00:00Z,120,16,scheduled,true
+s0120,club-001,Sunday Ladder,2026-06-21T11:00:00Z,120,16,scheduled,true
+s0121,club-001,Early Bird Monday,2026-06-21T22:30:00Z,90,16,scheduled,false
+s0122,club-001,Tuesday Open Play,2026-06-23T12:00:00Z,120,16,scheduled,true
+s0123,club-001,Thursday Drills & Games,2026-06-25T12:00:00Z,120,16,scheduled,true
+s0124,club-001,Saturday Morning Social,2026-06-27T00:00:00Z,120,16,scheduled,false
+s0125,club-001,Sunday Ladder,2026-06-28T11:00:00Z,120,16,scheduled,true
+s0126,club-001,Early Bird Monday,2026-06-28T22:30:00Z,90,16,scheduled,false
+s0127,club-001,Tuesday Open Play,2026-06-30T12:00:00Z,120,16,scheduled,true
+s0128,club-001,Thursday Drills & Games,2026-07-02T12:00:00Z,120,16,scheduled,true
+s0129,club-001,Saturday Morning Social,2026-07-04T00:00:00Z,120,16,scheduled,false
+s0130,club-001,Sunday Ladder,2026-07-05T11:00:00Z,120,16,scheduled,false
+s0131,club-001,Early Bird Monday,2026-07-05T22:30:00Z,90,16,scheduled,false
+s0132,club-001,Tuesday Open Play,2026-07-07T12:00:00Z,120,16,scheduled,true
+s0133,club-001,Thursday Drills & Games,2026-07-09T12:00:00Z,120,16,cancelled,false
+s0134,club-001,Saturday Morning Social,2026-07-11T00:00:00Z,120,16,scheduled,true
+s0135,club-001,Sunday Ladder,2026-07-12T11:00:00Z,120,16,scheduled,true
+s0136,club-001,Early Bird Monday,2026-07-12T22:30:00Z,90,16,scheduled,false
+s0137,club-001,Tuesday Open Play,2026-07-14T12:00:00Z,120,16,scheduled,true
+s0138,club-001,Thursday Drills & Games,2026-07-16T12:00:00Z,120,16,scheduled,true
+s0139,club-001,Saturday Morning Social,2026-07-18T00:00:00Z,120,16,scheduled,false
+s0140,club-001,Sunday Ladder,2026-07-19T11:00:00Z,120,16,scheduled,true
+s0141,club-001,Early Bird Monday,2026-07-19T22:30:00Z,90,16,scheduled,false
+s0142,club-001,Tuesday Open Play,2026-07-21T12:00:00Z,120,16,scheduled,true
+s0143,club-001,Thursday Drills & Games,2026-07-23T12:00:00Z,120,16,scheduled,true
+s0144,club-001,Saturday Morning Social,2026-07-25T00:00:00Z,120,16,scheduled,false
+s0145,club-001,Sunday Ladder,2026-07-26T11:00:00Z,120,16,scheduled,false
+s0146,club-001,Early Bird Monday,2026-07-26T22:30:00Z,90,16,scheduled,false
+s0147,club-001,Tuesday Open Play,2026-07-28T12:00:00Z,120,16,scheduled,false
+s0148,club-001,Thursday Drills & Games,2026-07-30T12:00:00Z,120,16,scheduled,true
+s0149,club-001,Saturday Morning Social,2026-08-01T00:00:00Z,120,16,scheduled,false
+s0150,club-001,Sunday Ladder,2026-08-02T11:00:00Z,120,16,scheduled,true
+s0151,club-001,Early Bird Monday,2026-08-02T22:30:00Z,90,16,scheduled,false
+s0152,club-001,Tuesday Open Play,2026-08-04T12:00:00Z,120,16,scheduled,true
+s0153,club-001,Thursday Drills & Games,2026-08-06T12:00:00Z,120,16,scheduled,true
+s0154,club-001,Saturday Morning Social,2026-08-08T00:00:00Z,120,16,scheduled,false
+s0155,club-001,Sunday Ladder,2026-08-09T11:00:00Z,120,16,scheduled,true
+s0156,club-001,Early Bird Monday,2026-08-09T22:30:00Z,90,16,scheduled,false
+s0157,club-001,Tuesday Open Play,2026-08-11T12:00:00Z,120,16,scheduled,true
+s0158,club-001,Thursday Drills & Games,2026-08-13T12:00:00Z,120,16,scheduled,true
+s0159,club-001,Saturday Morning Social,2026-08-15T00:00:00Z,120,16,scheduled,false
+s0160,club-001,Sunday Ladder,2026-08-16T11:00:00Z,120,16,scheduled,false
+s0161,club-001,Early Bird Monday,2026-08-16T22:30:00Z,90,16,scheduled,true
+s0162,club-001,Tuesday Open Play,2026-08-18T12:00:00Z,120,16,scheduled,true
+s0163,club-001,Thursday Drills & Games,2026-08-20T12:00:00Z,120,16,scheduled,true
+s0164,club-001,Saturday Morning Social,2026-08-22T00:00:00Z,120,16,scheduled,false
+s0165,club-001,Sunday Ladder,2026-08-23T11:00:00Z,120,16,scheduled,false
+s0166,club-001,Early Bird Monday,2026-08-23T22:30:00Z,90,16,scheduled,false
+s0167,club-001,Tuesday Open Play,2026-08-25T12:00:00Z,120,16,scheduled,true
+s0168,club-001,Thursday Drills & Games,2026-08-27T12:00:00Z,120,16,scheduled,true
+s0169,club-001,Saturday Morning Social,2026-08-29T00:00:00Z,120,16,scheduled,false
+s0170,club-001,Sunday Ladder,2026-08-30T11:00:00Z,120,16,scheduled,true
+s0171,club-001,Early Bird Monday,2026-08-30T22:30:00Z,90,16,scheduled,true
+s0172,club-001,Tuesday Open Play,2026-09-01T12:00:00Z,120,16,scheduled,false
+s0173,club-001,Thursday Drills & Games,2026-09-03T12:00:00Z,120,16,scheduled,true
+s0174,club-001,Saturday Morning Social,2026-09-05T00:00:00Z,120,16,scheduled,true
+s0175,club-001,Sunday Ladder,2026-09-06T11:00:00Z,120,16,scheduled,true
+s0176,club-001,Early Bird Monday,2026-09-06T22:30:00Z,90,16,scheduled,false
+s0177,club-001,Tuesday Open Play,2026-09-08T12:00:00Z,120,16,scheduled,true
+s0178,club-001,Thursday Drills & Games,2026-09-10T12:00:00Z,120,16,scheduled,true
+s0179,club-001,Saturday Morning Social,2026-09-12T00:00:00Z,120,16,scheduled,false
+s0180,club-001,Sunday Ladder,2026-09-13T11:00:00Z,120,16,scheduled,true
+s0181,club-001,Early Bird Monday,2026-09-13T22:30:00Z,90,16,scheduled,false
+s0182,club-001,Tuesday Open Play,2026-09-15T12:00:00Z,120,16,scheduled,true
+s0183,club-001,Thursday Drills & Games,2026-09-17T12:00:00Z,120,16,scheduled,true
+s0184,club-001,Saturday Morning Social,2026-09-19T00:00:00Z,120,16,scheduled,false
+s0185,club-001,Sunday Ladder,2026-09-20T11:00:00Z,120,16,scheduled,false
+s0186,club-001,Early Bird Monday,2026-09-20T22:30:00Z,90,16,scheduled,true
+s0187,club-001,Tuesday Open Play,2026-09-22T12:00:00Z,120,16,scheduled,true
+s0188,club-001,Thursday Drills & Games,2026-09-24T12:00:00Z,120,16,scheduled,true
+s0189,club-001,Saturday Morning Social,2026-09-26T00:00:00Z,120,16,scheduled,false
+s0190,club-001,Sunday Ladder,2026-09-27T11:00:00Z,120,16,scheduled,true
+s0191,club-001,Early Bird Monday,2026-09-27T22:30:00Z,90,16,scheduled,false
+s0192,club-001,Tuesday Open Play,2026-09-29T12:00:00Z,120,16,scheduled,false
+s0193,club-001,Thursday Drills & Games,2026-10-01T12:00:00Z,120,16,scheduled,true
+s0194,club-001,Saturday Morning Social,2026-10-03T00:00:00Z,120,16,scheduled,false
+s0195,club-001,Sunday Ladder,2026-10-04T11:00:00Z,120,16,scheduled,true

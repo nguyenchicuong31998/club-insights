@@ -19,9 +19,9 @@ describe("week boundaries in Asia/Ho_Chi_Minh (UTC+7)", () => {
     expect(weekOf("2026-09-13T17:30:00Z")).toBe("2026-09-14");
   });
 
-  it("puts the Monday 06:00 session in its local week, not the previous UTC week", () => {
-    // Mon 7 Sep 06:00 local = Sun 6 Sep 23:00 UTC. A UTC week would put it in the week of 31 Aug.
-    const utc = "2026-09-06T23:00:00Z";
+  it("puts Early Bird Monday (05:30 local) in its local week, not the previous UTC week", () => {
+    // Mon 7 Sep 05:30 local = Sun 6 Sep 22:30 UTC. A UTC week would put it in the week of 31 Aug.
+    const utc = "2026-09-06T22:30:00Z";
     expect(weekStartOf(new Date(utc).toISOString().slice(0, 10))).toBe("2026-08-31");
     expect(weekOf(utc)).toBe("2026-09-07");
   });

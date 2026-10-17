@@ -1,3 +1,3 @@
-id,name,timezone,created_at
-clb_saigon,Saigon Pickleball Club,Asia/Ho_Chi_Minh,2026-03-28T03:00:00Z
-clb_thaodien,Thao Dien Pickleball,Asia/Ho_Chi_Minh,2026-10-05T01:15:00Z
+club_id,name,time_zone,created_at
+club-001,Saigon Smash Pickleball,Asia/Ho_Chi_Minh,2025-12-01
+club-002,Thảo Điền Tennis Club,Asia/Ho_Chi_Minh,2026-10-01

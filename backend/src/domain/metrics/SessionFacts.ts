@@ -1,11 +1,11 @@
 import type { SessionStatus } from "../entities/Session.js";
 
-/** A confirmed booking as the metrics see it. Cancelled bookings never reach the metrics. */
+/** A live booking (status booked; "confirmed" in the API) as the metrics see it. Cancelled bookings never reach the metrics. */
 export interface BookingFact {
   bookingId: string;
   playerId: string;
   playerName: string;
-  /** true = attended, false = no-show, null = attendance not recorded (unknown). */
+  /** true = attended, false = no-show, null = attendance not recorded (unknown), including every booking at a session with attendance_recorded = false. */
   attended: boolean | null;
 }
 

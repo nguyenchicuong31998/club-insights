@@ -1,19 +1,22 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parse } from "csv-parse/sync";
+import { isLocalDate } from "../../domain/time/localDate.js";
 
 export interface SeedData {
-  clubs: { id: string; name: string; timezone: string; createdAt: string }[];
-  players: { id: string; name: string; createdAt: string }[];
+  clubs: { id: string; name: string; timezone: string; createdOn: string }[];
+  players: { id: string; clubId: string; name: string; joinedOn: string }[];
   sessions: {
-    id: string; clubId: string; title: string; startsAt: string; endsAt: string; capacity: number; status: string;
+    id: string; clubId: string; title: string; startsAt: string; endsAt: string; capacity: number;
+    status: "scheduled" | "cancelled"; attendanceRecorded: boolean;
   }[];
   bookings: {
-    id: string; sessionId: string; playerId: string; status: string; attended: boolean | null; createdAt: string;
+    id: string; sessionId: string; playerId: string; status: "booked" | "cancelled";
+    bookedAt: string; cancelledAt: string | null; attended: boolean | null;
   }[];
 }
 
-export interface Rejection {
+export interface Issue {
   file: string;
   line: number;
   reason: string;
@@ -23,13 +26,16 @@ export interface ReadResult {
   data: SeedData;
   /** Rows read per file, before validation. */
   csvRows: Record<keyof SeedData, number>;
-  rejected: Rejection[];
+  /** Rows skipped entirely. */
+  rejected: Issue[];
+  /** Rows kept with a value corrected, e.g. attendance on a session marked as not recorded. */
+  adjusted: Issue[];
 }
 
 class RowError extends Error {}
 
-// The CSVs are documented as UTC, so every timestamp must say which offset it is in.
-const TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
+// The export is UTC, but any explicit offset is accepted. A timestamp without one is ambiguous.
+const TIMESTAMP = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/;
 
 function text(row: Record<string, string>, column: string): string {
   const value = row[column]?.trim();
@@ -39,16 +45,38 @@ function text(row: Record<string, string>, column: string): string {
 
 function timestamp(row: Record<string, string>, column: string): string {
   const value = text(row, column);
-  if (!TIMESTAMP.test(value) || Number.isNaN(Date.parse(value))) {
+  const m = TIMESTAMP.exec(value);
+  // Date.parse rolls 2026-02-30 over to 2 March, so the calendar date and clock are checked first.
+  if (!m || !isLocalDate(m[1]) || +m[2] > 23 || +m[3] > 59 || +(m[4] ?? 0) > 59 || Number.isNaN(Date.parse(value))) {
     throw new RowError(`${column} "${value}" is not an ISO-8601 timestamp with an offset`);
   }
   return new Date(value).toISOString();
 }
 
-function oneOf<T extends string>(row: Record<string, string>, column: string, allowed: readonly T[]): T {
+function date(row: Record<string, string>, column: string): string {
   const value = text(row, column);
-  if (!allowed.includes(value as T)) throw new RowError(`${column} "${value}" is not one of ${allowed.join("|")}`);
+  if (!isLocalDate(value)) throw new RowError(`${column} "${value}" is not a date as YYYY-MM-DD`);
+  return value;
+}
+
+function positiveInt(row: Record<string, string>, column: string): number {
+  const value = text(row, column);
+  if (!/^\d+$/.test(value) || Number(value) <= 0) throw new RowError(`${column} "${value}" is not a positive whole number`);
+  return Number(value);
+}
+
+function oneOf<T extends string>(row: Record<string, string>, column: string, allowed: readonly T[]): T {
+  const value = text(row, column).toLowerCase();
+  if (!allowed.includes(value as T)) throw new RowError(`${column} "${row[column]}" is not one of ${allowed.join("|")}`);
   return value as T;
+}
+
+/** true / false, or null for blank. Never turns blank into false. */
+function optionalBoolean(row: Record<string, string>, column: string): boolean | null {
+  const value = row[column]?.trim().toLowerCase() ?? "";
+  if (value === "") return null;
+  if (value !== "true" && value !== "false") throw new RowError(`${column} "${row[column]}" is not true|false|blank`);
+  return value === "true";
 }
 
 function isTimeZone(tz: string): boolean {
@@ -66,25 +94,32 @@ async function readRows(dir: string, file: string): Promise<Record<string, strin
 }
 
 /**
- * Reads and validates the four CSVs. Invalid rows are skipped and reported rather than
- * aborting the load, so one bad line does not hide the rest of the data. Rows whose
- * parent was rejected are rejected too, keeping foreign keys consistent.
+ * Reads and validates the four CSVs. Invalid rows are skipped and reported rather than aborting
+ * the load, so one bad line does not hide the rest of the data. Rows whose parent was rejected
+ * are rejected too, keeping foreign keys consistent.
  */
 export async function readCsvData(dir: string): Promise<ReadResult> {
-  const rejected: Rejection[] = [];
+  const rejected: Issue[] = [];
+  const adjusted: Issue[] = [];
   const data: SeedData = { clubs: [], players: [], sessions: [], bookings: [] };
 
-  function load<T extends { id: string }>(file: string, rows: Record<string, string>[], map: (r: Record<string, string>) => T, into: T[]) {
-    const seen = new Set<string>();
+  function load<T extends { id: string }>(
+    file: string,
+    rows: Record<string, string>[],
+    map: (r: Record<string, string>, note: (reason: string) => void) => T,
+    into: T[],
+  ): Map<string, T> {
+    const seen = new Map<string, T>();
     rows.forEach((row, i) => {
+      const line = i + 2; // +1 header, +1 one-based
       try {
-        const item = map(row);
+        const item = map(row, (reason) => adjusted.push({ file, line, reason }));
         if (seen.has(item.id)) throw new RowError(`duplicate id ${item.id}`);
-        seen.add(item.id);
+        seen.set(item.id, item);
         into.push(item);
       } catch (err) {
         if (!(err instanceof RowError)) throw err;
-        rejected.push({ file, line: i + 2, reason: err.message }); // +1 header, +1 one-based
+        rejected.push({ file, line, reason: err.message });
       }
     });
     return seen;
@@ -97,42 +132,63 @@ export async function readCsvData(dir: string): Promise<ReadResult> {
     bookings: await readRows(dir, "bookings.csv"),
   };
 
-  const clubIds = load("clubs.csv", raw.clubs, (r) => {
-    const timezone = text(r, "timezone");
-    if (!isTimeZone(timezone)) throw new RowError(`timezone "${timezone}" is not an IANA time zone`);
-    return { id: text(r, "id"), name: text(r, "name"), timezone, createdAt: timestamp(r, "created_at") };
+  const clubs = load("clubs.csv", raw.clubs, (r) => {
+    const timezone = text(r, "time_zone");
+    if (!isTimeZone(timezone)) throw new RowError(`time_zone "${timezone}" is not an IANA time zone`);
+    return { id: text(r, "club_id"), name: text(r, "name"), timezone, createdOn: date(r, "created_at") };
   }, data.clubs);
 
-  const playerIds = load("players.csv", raw.players, (r) => (
-    { id: text(r, "id"), name: text(r, "name"), createdAt: timestamp(r, "created_at") }
-  ), data.players);
-
-  const sessionIds = load("sessions.csv", raw.sessions, (r) => {
+  const players = load("players.csv", raw.players, (r) => {
     const clubId = text(r, "club_id");
-    if (!clubIds.has(clubId)) throw new RowError(`unknown club_id ${clubId}`);
+    if (!clubs.has(clubId)) throw new RowError(`unknown club_id ${clubId}`);
+    return { id: text(r, "player_id"), clubId, name: text(r, "name"), joinedOn: date(r, "joined_club_at") };
+  }, data.players);
+
+  const sessions = load("sessions.csv", raw.sessions, (r) => {
+    const clubId = text(r, "club_id");
+    if (!clubs.has(clubId)) throw new RowError(`unknown club_id ${clubId}`);
     const startsAt = timestamp(r, "starts_at");
-    const endsAt = timestamp(r, "ends_at");
-    if (endsAt <= startsAt) throw new RowError("ends_at is not after starts_at");
-    const capacity = Number(text(r, "capacity"));
-    if (!Number.isInteger(capacity) || capacity <= 0) throw new RowError(`capacity "${r.capacity}" is not a positive integer`);
+    const endsAt = new Date(Date.parse(startsAt) + positiveInt(r, "duration_minutes") * 60_000).toISOString();
+    const attendanceRecorded = optionalBoolean(r, "attendance_recorded");
+    if (attendanceRecorded === null) throw new RowError("attendance_recorded is empty");
     return {
-      id: text(r, "id"), clubId, title: text(r, "title"), startsAt, endsAt, capacity,
+      id: text(r, "session_id"), clubId, title: text(r, "title"), startsAt, endsAt,
+      capacity: positiveInt(r, "places"),
       status: oneOf(r, "status", ["scheduled", "cancelled"] as const),
+      attendanceRecorded,
     };
   }, data.sessions);
 
-  load("bookings.csv", raw.bookings, (r) => {
+  const live = new Set<string>(); // session|player pairs with a live booking
+  load("bookings.csv", raw.bookings, (r, note) => {
     const sessionId = text(r, "session_id");
     const playerId = text(r, "player_id");
-    if (!sessionIds.has(sessionId)) throw new RowError(`unknown session_id ${sessionId}`);
-    if (!playerIds.has(playerId)) throw new RowError(`unknown player_id ${playerId}`);
-    const status = oneOf(r, "status", ["confirmed", "cancelled"] as const);
-    // Blank means attendance was not recorded: keep it NULL, never coerce it to false.
-    const attendedRaw = r.attended?.trim().toLowerCase() ?? "";
-    if (!["", "true", "false"].includes(attendedRaw)) throw new RowError(`attended "${r.attended}" is not true|false|blank`);
-    const attended = attendedRaw === "" ? null : attendedRaw === "true";
+    const session = sessions.get(sessionId);
+    const player = players.get(playerId);
+    if (!session) throw new RowError(`unknown session_id ${sessionId}`);
+    if (!player) throw new RowError(`unknown player_id ${playerId}`);
+    if (player.clubId !== session.clubId) throw new RowError(`player ${playerId} is not a member of ${session.clubId}`);
+
+    const status = oneOf(r, "status", ["booked", "cancelled"] as const);
+    const bookedAt = timestamp(r, "booked_at");
+    const cancelledAt = r.cancelled_at?.trim() ? timestamp(r, "cancelled_at") : null;
+    if (status === "cancelled" && !cancelledAt) throw new RowError("cancelled booking has no cancelled_at");
+    if (status === "booked" && cancelledAt) throw new RowError("booking has cancelled_at but status booked");
+
+    let attended = optionalBoolean(r, "attended");
     if (status === "cancelled" && attended !== null) throw new RowError("cancelled booking has attendance recorded");
-    return { id: text(r, "id"), sessionId, playerId, status, attended, createdAt: timestamp(r, "created_at") };
+    if (status === "booked") {
+      if (live.has(`${sessionId}|${playerId}`)) throw new RowError(`player ${playerId} already has a booking for ${sessionId}`);
+      live.add(`${sessionId}|${playerId}`);
+      if (!session.attendanceRecorded && attended !== null) {
+        // The session says nobody took attendance, so a stray value cannot be trusted.
+        note(`attended "${r.attended}" ignored: session ${sessionId} has attendance_recorded=false`);
+        attended = null;
+      } else if (session.attendanceRecorded && attended === null && session.status === "scheduled") {
+        note(`attended is blank although session ${sessionId} recorded attendance; kept as not recorded`);
+      }
+    }
+    return { id: text(r, "booking_id"), sessionId, playerId, status, bookedAt, cancelledAt, attended };
   }, data.bookings);
 
   return {
@@ -141,5 +197,6 @@ export async function readCsvData(dir: string): Promise<ReadResult> {
       clubs: raw.clubs.length, players: raw.players.length, sessions: raw.sessions.length, bookings: raw.bookings.length,
     },
     rejected,
+    adjusted,
   };
 }

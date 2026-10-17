@@ -15,29 +15,29 @@ export async function writeSeed(pool: pg.Pool, data: SeedData): Promise<TableCou
     await client.query("TRUNCATE bookings, sessions, players, clubs");
 
     // unnest() inserts each table in a single statement instead of one round trip per row.
+    const { clubs, players, sessions, bookings } = data;
+    const col = <T, K extends keyof T>(rows: T[], key: K) => rows.map((r) => r[key]);
     await client.query(
-      `INSERT INTO clubs (id, name, timezone, created_at)
-       SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::timestamptz[])`,
-      [data.clubs.map((c) => c.id), data.clubs.map((c) => c.name), data.clubs.map((c) => c.timezone),
-        data.clubs.map((c) => c.createdAt)],
+      `INSERT INTO clubs (id, name, timezone, created_on)
+       SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::date[])`,
+      [col(clubs, "id"), col(clubs, "name"), col(clubs, "timezone"), col(clubs, "createdOn")],
     );
     await client.query(
-      `INSERT INTO players (id, name, created_at)
-       SELECT * FROM unnest($1::text[], $2::text[], $3::timestamptz[])`,
-      [data.players.map((p) => p.id), data.players.map((p) => p.name), data.players.map((p) => p.createdAt)],
+      `INSERT INTO players (id, club_id, name, joined_on)
+       SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::date[])`,
+      [col(players, "id"), col(players, "clubId"), col(players, "name"), col(players, "joinedOn")],
     );
     await client.query(
-      `INSERT INTO sessions (id, club_id, title, starts_at, ends_at, capacity, status)
-       SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::timestamptz[], $5::timestamptz[], $6::int[], $7::text[])`,
-      [data.sessions.map((s) => s.id), data.sessions.map((s) => s.clubId), data.sessions.map((s) => s.title),
-        data.sessions.map((s) => s.startsAt), data.sessions.map((s) => s.endsAt), data.sessions.map((s) => s.capacity),
-        data.sessions.map((s) => s.status)],
+      `INSERT INTO sessions (id, club_id, title, starts_at, ends_at, capacity, status, attendance_recorded)
+       SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::timestamptz[], $5::timestamptz[], $6::int[], $7::text[], $8::boolean[])`,
+      [col(sessions, "id"), col(sessions, "clubId"), col(sessions, "title"), col(sessions, "startsAt"),
+        col(sessions, "endsAt"), col(sessions, "capacity"), col(sessions, "status"), col(sessions, "attendanceRecorded")],
     );
     await client.query(
-      `INSERT INTO bookings (id, session_id, player_id, status, attended, created_at)
-       SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::text[], $5::boolean[], $6::timestamptz[])`,
-      [data.bookings.map((b) => b.id), data.bookings.map((b) => b.sessionId), data.bookings.map((b) => b.playerId),
-        data.bookings.map((b) => b.status), data.bookings.map((b) => b.attended), data.bookings.map((b) => b.createdAt)],
+      `INSERT INTO bookings (id, session_id, player_id, status, booked_at, cancelled_at, attended)
+       SELECT * FROM unnest($1::text[], $2::text[], $3::text[], $4::text[], $5::timestamptz[], $6::timestamptz[], $7::boolean[])`,
+      [col(bookings, "id"), col(bookings, "sessionId"), col(bookings, "playerId"), col(bookings, "status"),
+        col(bookings, "bookedAt"), col(bookings, "cancelledAt"), col(bookings, "attended")],
     );
 
     const { rows } = await client.query<TableCounts>(`

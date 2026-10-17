@@ -13,7 +13,8 @@ import { NOW } from "../builders.js";
 
 const pool = createPool(config.databaseUrl);
 const dbReady = await pool
-  .query("SELECT count(*)::int AS n FROM sessions")
+  // The real export: club-001 with sessions that carry the attendance_recorded flag (migration 002).
+  .query("SELECT count(*)::int AS n FROM sessions WHERE club_id = 'club-001' AND attendance_recorded")
   .then((r) => r.rows[0].n > 0)
   .catch(() => false);
 if (!dbReady) {
@@ -21,7 +22,7 @@ if (!dbReady) {
   await pool.end();
 }
 
-const SAIGON = "clb_saigon";
+const CLUB = "club-001";
 let server: Server;
 let base: string;
 
@@ -30,7 +31,9 @@ async function get(path: string) {
   return { status: res.status, body: await res.json() };
 }
 
-describe.skipIf(!dbReady)("API on the sample data", () => {
+type Week = { start: string; sessionsHeld: number; activePlayers: number; partial: string | null; noShows: { count: number | null; recordedBookings: number } };
+
+describe.skipIf(!dbReady)("API on the club export", () => {
   beforeAll(async () => {
     server = buildApp(pool, { now: NOW, corsOrigin: "*" }).listen(0);
     await new Promise((resolve) => server.once("listening", resolve));
@@ -41,61 +44,104 @@ describe.skipIf(!dbReady)("API on the sample data", () => {
     await pool.end();
   });
 
+  it("lists both clubs, oldest first, with their creation date", async () => {
+    const { body } = await get("/clubs");
+    expect(body.data.map((c: { id: string; createdOn: string }) => [c.id, c.createdOn])).toEqual([
+      ["club-001", "2025-12-01"],
+      ["club-002", "2026-10-01"],
+    ]);
+  });
+
   it("summary matches the hand-computed values for the last 4 weeks", async () => {
-    const { status, body } = await get(`/clubs/${SAIGON}/summary`);
+    const { status, body } = await get(`/clubs/${CLUB}/summary`);
     expect(status).toBe(200);
     expect(body.meta.range).toMatchObject({ from: "2026-09-07", to: "2026-10-04", partial: false });
     expect(body.meta.previousRange).toMatchObject({ from: "2026-08-10", to: "2026-09-06" });
 
     const m = body.data.metrics;
-    expect(m.sessionsHeld).toMatchObject({ current: 22, previous: 22 });
-    expect(m.activePlayers).toMatchObject({ current: 112, previous: 106 });
-    expect(m.noShows.current).toMatchObject({ count: 27, recordedBookings: 230, confirmedBookings: 306 });
-    expect(m.noShows.previous).toMatchObject({ count: 18, recordedBookings: 191, confirmedBookings: 315 });
-    expect(m.noShows.current.rate).toBeCloseTo(0.117, 3);
-    expect(m.noShows.previous.rate).toBeCloseTo(0.094, 3);
-    expect(m.noShows.rateChange.absolute).toBeCloseTo(0.023, 3);
+    expect(m.sessionsHeld).toMatchObject({ current: 20, previous: 20 });
+    expect(m.activePlayers).toMatchObject({ current: 89, previous: 88 });
+    expect(m.noShows.current).toMatchObject({ count: 15, recordedBookings: 151, confirmedBookings: 264 });
+    expect(m.noShows.previous).toMatchObject({ count: 14, recordedBookings: 152, confirmedBookings: 248 });
+    expect(m.noShows.current.rate).toBeCloseTo(15 / 151, 10);
+    expect(m.noShows.previous.rate).toBeCloseTo(14 / 152, 10);
+    expect(m.noShows.rateChange.absolute).toBeCloseTo(15 / 151 - 14 / 152, 10);
   });
 
-  it("weekly active players match, with the current week partial", async () => {
-    const { body } = await get(`/clubs/${SAIGON}/weekly?from=2026-08-10&to=2026-10-05`);
-    const weeks = body.data.weeks;
-    expect(weeks.map((w: { activePlayers: number }) => w.activePlayers)).toEqual([57, 52, 56, 47, 60, 52, 59, 52, 11]);
-    expect(weeks.at(-1)).toMatchObject({ start: "2026-10-05", partial: "in_progress" });
+  it("weekly values match, and the current week is in progress with nothing held yet", async () => {
+    const { body } = await get(`/clubs/${CLUB}/weekly?from=2026-08-10&to=2026-10-05`);
+    const weeks: Week[] = body.data.weeks;
+    expect(weeks.map((w) => w.activePlayers)).toEqual([38, 40, 38, 41, 37, 36, 45, 44, 0]);
+    expect(weeks.map((w) => w.noShows.count)).toEqual([1, 3, 4, 6, 2, 5, 6, 2, null]);
+    expect(weeks.at(-1)).toMatchObject({ start: "2026-10-05", partial: "in_progress", sessionsHeld: 0 });
   });
 
-  it("weeks are local: 6 then 5 sessions for 7–20 Sep, not the UTC split", async () => {
-    const { body } = await get(`/clubs/${SAIGON}/weekly?from=2026-09-07&to=2026-09-20`);
-    expect(body.data.weeks.map((w: { sessionsHeld: number }) => w.sessionsHeld)).toEqual([6, 5]);
+  it("weeks are local: 5 and 5 sessions for 7–20 Sep, not the UTC split of 1 / 5 / 4", async () => {
+    const { body } = await get(`/clubs/${CLUB}/weekly?from=2026-09-07&to=2026-09-20`);
+    expect(body.data.weeks.map((w: Week) => w.sessionsHeld)).toEqual([5, 5]);
   });
 
-  it("weekly no-shows add up to the summary", async () => {
-    const { body } = await get(`/clubs/${SAIGON}/weekly?from=2026-09-07&to=2026-10-04`);
-    const total = body.data.weeks.reduce((sum: number, w: { noShows: { count: number | null } }) => sum + (w.noShows.count ?? 0), 0);
-    expect(total).toBe(27);
+  it("weekly values add up to the summary", async () => {
+    const { body } = await get(`/clubs/${CLUB}/weekly`);
+    const weeks: Week[] = body.data.weeks;
+    expect(weeks.reduce((sum, w) => sum + (w.noShows.count ?? 0), 0)).toBe(15);
+    expect(weeks.reduce((sum, w) => sum + w.noShows.recordedBookings, 0)).toBe(151);
+    expect(weeks.reduce((sum, w) => sum + w.sessionsHeld, 0)).toBe(20);
   });
 
-  it("every headline number equals the length of the list behind it", async () => {
-    const [held, active, noShowPlayers] = await Promise.all([
-      get(`/clubs/${SAIGON}/sessions?filter=held`),
-      get(`/clubs/${SAIGON}/players?filter=active`),
-      get(`/clubs/${SAIGON}/players?filter=no_show`),
+  it("every headline number equals the list behind it", async () => {
+    const [held, active, noShowPlayers, withNoShows, missing] = await Promise.all([
+      get(`/clubs/${CLUB}/sessions?filter=held`),
+      get(`/clubs/${CLUB}/players?filter=active`),
+      get(`/clubs/${CLUB}/players?filter=no_show`),
+      get(`/clubs/${CLUB}/sessions?filter=with_no_shows`),
+      get(`/clubs/${CLUB}/sessions?filter=attendance_not_recorded`),
     ]);
-    expect(held.body.data.sessions).toHaveLength(22);
-    expect(active.body.data.players).toHaveLength(112);
-    const noShows = noShowPlayers.body.data.players.reduce((sum: number, p: { noShows: number }) => sum + p.noShows, 0);
-    expect(noShows).toBe(27);
+    expect(held.body.data.sessions).toHaveLength(20);
+    expect(active.body.data.players).toHaveLength(89);
+    const sum = (rows: { noShows: number }[]) => rows.reduce((s, r) => s + r.noShows, 0);
+    expect(sum(noShowPlayers.body.data.players)).toBe(15);
+    expect(sum(withNoShows.body.data.sessions)).toBe(15);
+    // Coverage: 264 bookings, 151 recorded, so 113 sit at sessions without attendance.
+    const notRecorded = missing.body.data.sessions.reduce((s: number, r: { notRecorded: number }) => s + r.notRecorded, 0);
+    expect(notRecorded).toBe(264 - 151);
+  });
+
+  it("players with the same name stay separate", async () => {
+    const { body } = await get(`/clubs/${CLUB}/players?filter=active&from=2026-01-01&to=2026-10-04`);
+    const ids = body.data.players.map((p: { id: string }) => p.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("a session without attendance shows every booking as not recorded, never as a no-show", async () => {
+    const { body } = await get(`/clubs/${CLUB}/sessions/s0176`); // Early Bird Monday, 7 Sep 05:30 local
+    expect(body.data).toMatchObject({ title: "Early Bird Monday", held: true, attendanceStatus: "not_recorded", cancelledBookings: 1 });
+    expect(body.data.bookings).toHaveLength(12);
+    expect(new Set(body.data.bookings.map((b: { attendance: string }) => b.attendance))).toEqual(new Set(["not_recorded"]));
+  });
+
+  it("a session with attendance labels every booking, and counts cancellations apart", async () => {
+    const { body } = await get(`/clubs/${CLUB}/sessions/s0177`);
+    const count = (a: string) => body.data.bookings.filter((b: { attendance: string }) => b.attendance === a).length;
+    expect(body.data.attendanceStatus).toBe("recorded");
+    expect([count("attended"), count("no_show"), count("not_recorded")]).toEqual([10, 1, 0]);
+    expect(body.data.cancelledBookings).toBe(1);
   });
 
   it("the new club has no history and Unknown no-shows, not zeros", async () => {
-    const { body } = await get("/clubs/clb_thaodien/summary");
-    expect(body.data.hasHistory).toBe(false);
+    const { body } = await get("/clubs/club-002/summary");
+    expect(body.data).toMatchObject({ hasHistory: false, firstSessionAt: null, club: { createdOn: "2026-10-01" } });
     expect(body.data.metrics.noShows.current.count).toBeNull();
+    expect(body.data.metrics.sessionsHeld).toMatchObject({ current: 0, previous: 0 });
   });
 
   it("rejects bad input with readable errors", async () => {
-    expect((await get(`/clubs/${SAIGON}/summary?from=2026-10-04&to=2026-09-07`)).status).toBe(400);
-    expect((await get(`/clubs/${SAIGON}/summary?from=2026-09-07`)).status).toBe(400);
+    expect((await get(`/clubs/${CLUB}/summary?from=2026-10-04&to=2026-09-07`)).status).toBe(400);
+    expect((await get(`/clubs/${CLUB}/summary?from=2026-09-07`)).status).toBe(400);
+    expect((await get(`/clubs/${CLUB}/summary?from=2026-02-30&to=2026-03-05`)).status).toBe(400);
+    expect((await get(`/clubs/${CLUB}/sessions?filter=bogus`)).status).toBe(400);
+    expect((await get(`/clubs/${CLUB}/summary?from=2026-09-07&from=2026-09-08&to=2026-10-04`)).status).toBe(400);
+    expect((await get("/clubs/club-002/sessions/s0177")).status).toBe(404); // another club's session
     const missing = await get("/clubs/nope/summary");
     expect(missing.status).toBe(404);
     expect(missing.body.error).toBeTruthy();
