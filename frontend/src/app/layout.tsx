@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+// Designed for Vietnamese, so player names like "Trần Hữu Tú" render with proper diacritics.
+const sans = Be_Vietnam_Pro({ variable: "--font-vietnam", subsets: ["latin", "vietnamese"], weight: ["400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
   title: "Club Insights",
@@ -16,7 +16,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     // suppressHydrationWarning: browser extensions add attributes to <html>/<body> before React hydrates.
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>{children}</body>
+      <body className={`${sans.variable} antialiased`} suppressHydrationWarning>{children}</body>
     </html>
   );
 }

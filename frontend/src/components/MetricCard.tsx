@@ -1,47 +1,42 @@
 import Link from "next/link";
-import { formatCount, formatPercent, signed } from "@/lib/format";
-import type { Change, CountComparison, NoShowMetric } from "@/lib/types";
-
-type Tone = "good" | "bad" | "neutral";
-
-const TONE_CLASS: Record<Tone, string> = {
-  good: "bg-good-soft text-good",
-  bad: "bg-bad-soft text-bad",
-  neutral: "bg-surface-2 text-ink-2",
-};
-
-/** Arrow + text, never color alone. `higherIsBetter` decides whether up is good or bad. */
-function DeltaChip({ change, text, higherIsBetter }: { change: Change; text: string; higherIsBetter: boolean }) {
-  const dir = change.absolute > 0 ? "up" : change.absolute < 0 ? "down" : "flat";
-  const tone: Tone = dir === "flat" ? "neutral" : (dir === "up") === higherIsBetter ? "good" : "bad";
-  const arrow = dir === "up" ? "▲" : dir === "down" ? "▼" : "＝";
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-sm font-semibold tabular ${TONE_CLASS[tone]}`}>
-      <span aria-hidden>{arrow}</span>
-      {dir === "flat" ? "No change" : text}
-    </span>
-  );
-}
-
-function countChangeText(c: Change): string {
-  const abs = signed(c.absolute, formatCount(Math.abs(c.absolute)));
-  return c.relative === null ? abs : `${abs} (${signed(c.relative, formatPercent(Math.abs(c.relative)))})`;
-}
+import { formatCount, formatPercent, plural, signed } from "@/lib/format";
+import type { Change, CountComparison, NoShowMetric, Summary } from "@/lib/types";
 
 interface DrillLink {
   href: string;
   label: string;
 }
 
-function CardShell({ title, children, links }: { title: string; children: React.ReactNode; links: DrillLink[] }) {
+/** Arrow + words, never colour alone. `higherIsBetter` decides whether up reads as good or bad. */
+function Delta({ change, text, higherIsBetter, against }: { change: Change; text: string; higherIsBetter: boolean; against: string }) {
+  const dir = change.absolute > 0 ? "up" : change.absolute < 0 ? "down" : "flat";
+  const tone = dir === "flat" ? "text-ink-2" : (dir === "up") === higherIsBetter ? "text-good" : "text-bad";
   return (
-    <article className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4 sm:p-5">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-2">{title}</h2>
+    <p className="text-sm text-ink-2 tabular">
+      <span className={`font-semibold ${tone}`}>
+        <span aria-hidden>{dir === "up" ? "▲ " : dir === "down" ? "▼ " : ""}</span>
+        {dir === "flat" ? "No change" : text}
+      </span>{" "}
+      vs {against}
+    </p>
+  );
+}
+
+function Column({ title, children, definition, links }: {
+  title: string;
+  children: React.ReactNode;
+  definition: string;
+  links: DrillLink[];
+}) {
+  return (
+    <article className="flex flex-col gap-3 py-5 md:px-6 md:first:pl-0 md:last:pr-0">
+      <h2 className="text-[15px] font-medium text-ink">{title}</h2>
       {children}
-      <nav aria-label={`Details behind ${title}`} className="mt-auto flex flex-wrap gap-x-4 gap-y-1 border-t border-line pt-3">
+      <p className="text-sm leading-relaxed text-ink-3">{definition}</p>
+      <nav aria-label={`Details behind ${title}`} className="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-1">
         {links.map((l) => (
-          <Link key={l.href} href={l.href} scroll={false} className="text-sm font-medium text-accent hover:underline">
-            {l.label} →
+          <Link key={l.href} href={l.href} scroll={false} className="text-sm font-medium text-accent underline-offset-4 hover:underline">
+            {l.label} <span aria-hidden>→</span>
           </Link>
         ))}
       </nav>
@@ -49,94 +44,124 @@ function CardShell({ title, children, links }: { title: string; children: React.
   );
 }
 
-function Definition({ text }: { text: string }) {
+const Big = ({ children, muted }: { children: React.ReactNode; muted?: boolean }) => (
+  <p className={`text-5xl font-semibold leading-none tracking-tight tabular ${muted ? "text-unknown" : "text-ink"}`}>{children}</p>
+);
+
+function CountColumn({ title, metric, unit, links }: { title: string; metric: CountComparison; unit: string; links: DrillLink[] }) {
+  const c = metric.change;
   return (
-    <p className="text-sm leading-snug text-ink-2">
-      <span className="font-medium text-ink">Counts: </span>
-      {text}
-    </p>
+    <Column title={title} definition={metric.definition} links={links}>
+      <Big>{formatCount(metric.current)}</Big>
+      {metric.previous === 0 || !c ? (
+        <p className="text-sm text-ink-2">No {unit} in the previous period, so nothing to compare with.</p>
+      ) : (
+        <Delta
+          change={c}
+          higherIsBetter
+          text={`${signed(c.absolute, formatCount(Math.abs(c.absolute)))}${c.relative === null ? "" : ` (${signed(c.relative, formatPercent(Math.abs(c.relative)))})`}`}
+          against={`${formatCount(metric.previous)} before`}
+        />
+      )}
+    </Column>
   );
 }
 
-export function CountCard({ title, metric, links, unit }: { title: string; metric: CountComparison; links: DrillLink[]; unit: string }) {
+/** One square per held session: filled when attendance was taken. The rate's footing, at a glance. */
+function SessionSquares({ held, withAttendance }: { held: number; withAttendance: number }) {
+  if (held === 0) return null;
+  const shown = Math.min(held, 52);
+  const filled = Math.round((withAttendance / held) * shown);
   return (
-    <CardShell title={title} links={links}>
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="text-4xl font-semibold tabular text-ink">{formatCount(metric.current)}</span>
-        {metric.change && metric.previous > 0 && (
-          <DeltaChip change={metric.change} text={countChangeText(metric.change)} higherIsBetter />
-        )}
+    <div className="flex flex-col gap-1.5">
+      <div role="img" aria-label={`Attendance taken at ${withAttendance} of ${held} sessions`} className="flex flex-wrap gap-[3px]">
+        {Array.from({ length: shown }, (_, i) => (
+          <span
+            key={i}
+            className={`h-3 w-3 rounded-[2px] ${i < filled ? "bg-accent" : "border border-line-strong bg-transparent"}`}
+          />
+        ))}
       </div>
       <p className="text-sm text-ink-2 tabular">
-        {metric.previous > 0
-          ? `${formatCount(metric.previous)} ${unit} in the previous period`
-          : `No ${unit} in the previous period, so there's nothing to compare against.`}
-      </p>
-      <Definition text={metric.definition} />
-    </CardShell>
-  );
-}
-
-function Coverage({ m }: { m: NoShowMetric }) {
-  if (m.confirmedBookings === 0) return null;
-  const share = m.confirmedBookings ? m.recordedBookings / m.confirmedBookings : 0;
-  const low = m.recordedBookings > 0 && share < 0.5;
-  return (
-    <div className="flex flex-col gap-1">
-      <div
-        className="h-2 overflow-hidden rounded-full bg-surface-2"
-        role="img"
-        aria-label={`Attendance recorded for ${m.recordedBookings} of ${m.confirmedBookings} bookings`}
-      >
-        <div className="h-full rounded-full bg-accent" style={{ width: `${share * 100}%` }} />
-      </div>
-      <p className="text-sm text-ink-2 tabular">
-        Attendance taken for <span className="font-medium text-ink">{formatCount(m.recordedBookings)}</span> of{" "}
-        {formatCount(m.confirmedBookings)} bookings ({formatPercent(share, 0)})
-        {low && <span className="ml-1 font-medium text-warn">· low coverage, read with care</span>}
+        Attendance taken at <span className="font-medium text-ink">{withAttendance} of {plural(held, "session")}</span>
+        {held > shown && <span className="text-ink-3"> (each square ≈ {formatCount(Math.round(held / shown))} sessions)</span>}
       </p>
     </div>
   );
 }
 
-export function NoShowCard({ metric, links }: {
-  metric: { current: NoShowMetric; previous: NoShowMetric; rateChange: Change | null; definition: string };
+function NoShowColumn({ metric, sessionsHeld, links }: {
+  metric: Summary["metrics"]["noShows"];
+  sessionsHeld: number;
   links: DrillLink[];
 }) {
   const { current: cur, previous: prev, rateChange } = metric;
+  const share = (m: NoShowMetric) => (m.confirmedBookings ? m.recordedBookings / m.confirmedBookings : 0);
   return (
-    <CardShell title="No-shows" links={links}>
+    <Column title="No-shows" definition={metric.definition} links={links}>
       {cur.count === null ? (
-        <div className="flex flex-col gap-1">
-          <span className="text-4xl font-semibold text-unknown">Unknown</span>
+        <>
+          <Big muted>Unknown</Big>
           <p className="text-sm text-ink-2">
-            Attendance wasn&apos;t taken at any session in this period, so no-shows can&apos;t be counted. This is not zero.
+            {sessionsHeld === 0
+              ? "No sessions were held in this period."
+              : "Attendance wasn't taken at any session in this period, so no-shows can't be counted. This is not zero."}
           </p>
-        </div>
+        </>
       ) : (
         <>
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="text-4xl font-semibold tabular text-ink">{formatCount(cur.count)}</span>
-            <span className="text-lg text-ink-2 tabular">{formatPercent(cur.rate ?? 0)} rate</span>
+          <div className="flex flex-wrap items-baseline gap-x-3">
+            <Big>{formatCount(cur.count)}</Big>
+            <p className="text-base text-ink-2 tabular">
+              <span className="font-semibold text-ink">{formatPercent(cur.rate ?? 0)}</span> of checked bookings
+            </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-sm text-ink-2 tabular">
-            {rateChange ? (
-              <>
-                <DeltaChip
-                  change={rateChange}
-                  text={`${signed(rateChange.absolute, (Math.abs(rateChange.absolute) * 100).toFixed(1))} pts`}
-                  higherIsBetter={false}
-                />
-                <span>vs {formatPercent(prev.rate ?? 0)} in the previous period ({formatCount(prev.count ?? 0)} no-shows)</span>
-              </>
-            ) : (
-              <span>No comparison: attendance wasn&apos;t taken in the previous period.</span>
-            )}
-          </div>
+          {rateChange && prev.rate !== null ? (
+            <Delta
+              change={rateChange}
+              higherIsBetter={false}
+              text={`${signed(rateChange.absolute, (Math.abs(rateChange.absolute) * 100).toFixed(1))} pts`}
+              against={`${formatPercent(prev.rate)} before`}
+            />
+          ) : (
+            <p className="text-sm text-ink-2">No comparison: attendance wasn&apos;t taken in the previous period.</p>
+          )}
         </>
       )}
-      <Coverage m={cur} />
-      <Definition text={metric.definition} />
-    </CardShell>
+      <SessionSquares held={sessionsHeld} withAttendance={cur.sessionsWithAttendance} />
+      {cur.recordedBookings > 0 && share(cur) < 0.5 && (
+        <p className="text-sm text-warn">
+          Only {formatPercent(share(cur), 0)} of bookings were checked, so read the rate with care.
+        </p>
+      )}
+    </Column>
+  );
+}
+
+export function KeyNumbers({ summary, drill }: { summary: Summary; drill: (view: string) => string }) {
+  const m = summary.metrics;
+  return (
+    <section aria-label="Key numbers" className="grid border-y border-line md:grid-cols-3 md:divide-x md:divide-line max-md:divide-y max-md:divide-line">
+      <CountColumn
+        title="Active players"
+        unit="players"
+        metric={m.activePlayers}
+        links={[{ href: drill("players:active"), label: `See the ${plural(m.activePlayers.current, "player")}` }]}
+      />
+      <CountColumn
+        title="Sessions held"
+        unit="sessions"
+        metric={m.sessionsHeld}
+        links={[{ href: drill("sessions:held"), label: `See the ${plural(m.sessionsHeld.current, "session")}` }]}
+      />
+      <NoShowColumn
+        metric={m.noShows}
+        sessionsHeld={m.sessionsHeld.current}
+        links={[
+          { href: drill("players:no_show"), label: "Who didn't show" },
+          { href: drill("sessions:attendance_not_recorded"), label: "Sessions without attendance" },
+        ]}
+      />
+    </section>
   );
 }

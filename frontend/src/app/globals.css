@@ -1,66 +1,72 @@
 @import "tailwindcss";
 
-/* Design tokens. Components use these roles (bg-surface, text-ink-2, …), never raw hex. */
+/*
+ * Design tokens. Components use these roles (bg-surface, text-ink-2, …), never raw hex.
+ * One accent, a court green, carries the data; red and amber are kept for "worse" and "read with care".
+ */
 :root {
   color-scheme: light;
-  --page: #f6f6f4;
-  --surface: #fcfcfb;
-  --surface-2: #f0efec;
-  --line: #e2e1dc;
-  --ink: #0b0b0b;
-  --ink-2: #52514e;
-  --ink-3: #75746f;
-  --accent: #2a78d6; /* series 1 */
-  --accent-soft: #cde2fb;
-  --good: #0a7d0a;
-  --good-soft: #e3f3e3;
-  --bad: #c03232;
-  --bad-soft: #fbe6e6;
-  --warn: #8a5a00;
-  --warn-soft: #fdf1d8;
-  --unknown: #9a9993;
+  --page: #f5f4ef;
+  --surface: #fffffc;
+  --surface-2: #ecebe4;
+  --line: #dcdad0;
+  --line-strong: #b9b7ac;
+  --ink: #18201b;
+  --ink-2: #4c534d;
+  --ink-3: #747a73;
+  --accent: #1d6b47;
+  --accent-soft: #c9e1d2;
+  --accent-wash: #e6f0e9;
+  --good: #1d6b47;
+  --bad: #b13f28;
+  --bad-soft: #f5e1d9;
+  --warn: #8f5b06;
+  --warn-soft: #f4e9d2;
+  --unknown: #8d8f87;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --page: #121211;
-    --surface: #1a1a19;
-    --surface-2: #232321;
-    --line: #34342f;
-    --ink: #f0efec;
-    --ink-2: #c3c2b7;
-    --ink-3: #9a998f;
-    --accent: #3987e5;
-    --accent-soft: #1c3557;
-    --good: #4cc24c;
-    --good-soft: #17301a;
-    --bad: #ef7575;
-    --bad-soft: #3a1c1c;
-    --warn: #f0b545;
-    --warn-soft: #382a10;
-    --unknown: #6f6e68;
+    --page: #121512;
+    --surface: #191d1a;
+    --surface-2: #232823;
+    --line: #313832;
+    --line-strong: #4a524b;
+    --ink: #eef0ea;
+    --ink-2: #b8bdb5;
+    --ink-3: #8d938b;
+    --accent: #5dbd88;
+    --accent-soft: #28452f;
+    --accent-wash: #1c2b21;
+    --good: #6cc792;
+    --bad: #ee8c73;
+    --bad-soft: #3b231c;
+    --warn: #e2b259;
+    --warn-soft: #382c14;
+    --unknown: #6e736c;
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --page: #121211;
-  --surface: #1a1a19;
-  --surface-2: #232321;
-  --line: #34342f;
-  --ink: #f0efec;
-  --ink-2: #c3c2b7;
-  --ink-3: #9a998f;
-  --accent: #3987e5;
-  --accent-soft: #1c3557;
-  --good: #4cc24c;
-  --good-soft: #17301a;
-  --bad: #ef7575;
-  --bad-soft: #3a1c1c;
-  --warn: #f0b545;
-  --warn-soft: #382a10;
-  --unknown: #6f6e68;
+  --page: #121512;
+  --surface: #191d1a;
+  --surface-2: #232823;
+  --line: #313832;
+  --line-strong: #4a524b;
+  --ink: #eef0ea;
+  --ink-2: #b8bdb5;
+  --ink-3: #8d938b;
+  --accent: #5dbd88;
+  --accent-soft: #28452f;
+  --accent-wash: #1c2b21;
+  --good: #6cc792;
+  --bad: #ee8c73;
+  --bad-soft: #3b231c;
+  --warn: #e2b259;
+  --warn-soft: #382c14;
+  --unknown: #6e736c;
 }
 
 @theme inline {
@@ -68,28 +74,34 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-wash: var(--accent-wash);
   --color-good: var(--good);
-  --color-good-soft: var(--good-soft);
   --color-bad: var(--bad);
   --color-bad-soft: var(--bad-soft);
   --color-warn: var(--warn);
   --color-warn-soft: var(--warn-soft);
   --color-unknown: var(--unknown);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-vietnam), system-ui, sans-serif;
 }
 
 body {
   background: var(--page);
   color: var(--ink);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-vietnam), system-ui, sans-serif;
 }
 
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Quiet links: underline appears on hover, and focus is always visible. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

@@ -25,18 +25,18 @@ export function Drawer({ title, closeHref, children }: { title: string; closeHre
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
-      <Link href={closeHref} scroll={false} aria-label="Close" className="absolute inset-0 bg-black/40" />
+      <Link href={closeHref} scroll={false} aria-label="Close" className="absolute inset-0 bg-black/30" />
       <div
         ref={panel}
         role="dialog"
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
-        className="relative flex h-full w-full flex-col overflow-hidden bg-page shadow-2xl outline-none sm:max-w-3xl"
+        className="relative flex h-full w-full flex-col overflow-hidden bg-page shadow-xl outline-none sm:max-w-3xl lg:max-w-4xl"
       >
-        <div className="flex items-center justify-between gap-3 border-b border-line bg-surface px-4 py-3 sm:px-6">
-          <h2 className="truncate text-base font-semibold text-ink">{title}</h2>
-          <Link href={closeHref} scroll={false} className="rounded-md px-2 py-1 text-sm font-medium text-ink-2 hover:bg-surface-2 hover:text-ink">
+        <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-4 sm:px-6">
+          <h2 className="truncate text-lg font-semibold text-ink">{title}</h2>
+          <Link href={closeHref} scroll={false} className="shrink-0 whitespace-nowrap rounded-md px-2 py-1 text-sm font-medium text-ink-2 hover:bg-surface-2 hover:text-ink">
             Close <span aria-hidden>✕</span>
           </Link>
         </div>

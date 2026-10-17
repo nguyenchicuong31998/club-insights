@@ -1,13 +1,16 @@
-/** Plain-language definitions shown next to each number. Keep in sync with docs/metrics.md. */
+/**
+ * Plain-language definitions shown next to each number: short enough to read at a glance.
+ * The full rules are in docs/metrics.md. Keep the two in sync.
+ */
 export const DEFINITIONS = {
-  sessionsHeld: "Sessions that started in this period and were not cancelled.",
+  sessionsHeld: "Sessions that started in this period and weren't cancelled.",
   activePlayers:
-    "Different players with at least one booking (not cancelled) at a session held in this period, " +
-    "not counting bookings marked as no-show. Players at sessions without attendance are counted.",
+    "Different people with a booking at a session held in this period. " +
+    "A booking marked no-show doesn't count; one where attendance wasn't taken does.",
   noShows:
-    "Bookings marked as did-not-attend at held sessions. Only sessions where attendance " +
-    "was taken can have no-shows, so the rate is no-shows ÷ bookings with attendance recorded.",
-  previousPeriod: "The same number of days immediately before the selected range.",
+    "Bookings marked absent, at sessions where attendance was taken. " +
+    "Rate = no-shows ÷ bookings that were checked.",
+  previousPeriod: "The same number of days, straight before the selected range.",
   weeks: "Weeks run Monday to Sunday in the club's time zone.",
 } as const;
 

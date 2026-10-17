@@ -28,36 +28,35 @@ export function RangeControls({ state, meta }: { state: PageState; meta: Meta })
     return p.from === range.from && p.to === range.to;
   });
 
+  const tab = (active: boolean) =>
+    `-mb-px border-b-2 px-1 pb-2 text-sm font-medium transition-colors ${
+      active ? "border-accent text-ink" : "border-transparent text-ink-3 hover:text-ink"
+    }`;
+
   return (
-    <section aria-label="Date range" className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-3 sm:p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <div role="group" aria-label="Preset ranges" className="flex flex-wrap gap-1 rounded-lg bg-surface-2 p-1">
+    <section aria-label="Date range" className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-line">
+        <div role="group" aria-label="Preset ranges" className="flex flex-wrap gap-x-5">
           {PRESET_WEEKS.map((n) => (
-            <button
-              key={n}
-              type="button"
-              aria-pressed={activePreset === n}
-              onClick={() => go(lastWeeks(meta.today, n))}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                activePreset === n ? "bg-surface text-ink shadow-sm" : "text-ink-2 hover:text-ink"
-              }`}
-            >
+            <button key={n} type="button" aria-pressed={activePreset === n} onClick={() => go(lastWeeks(meta.today, n))} className={tab(activePreset === n)}>
               Last {n} weeks
             </button>
           ))}
-          <button
-            type="button"
-            aria-expanded={open}
-            aria-pressed={!activePreset}
-            onClick={() => setOpen((o) => !o)}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-              !activePreset ? "bg-surface text-ink shadow-sm" : "text-ink-2 hover:text-ink"
-            }`}
-          >
-            Custom…
+          <button type="button" aria-expanded={open} aria-pressed={!activePreset} onClick={() => setOpen((o) => !o)} className={tab(!activePreset)}>
+            Custom dates
           </button>
         </div>
-        {pending && <span className="text-sm text-ink-3" aria-live="polite">Updating…</span>}
+        <p className="pb-2 text-sm text-ink-2 tabular">
+          {pending ? (
+            <span aria-live="polite">Updating…</span>
+          ) : (
+            <>
+              <span className="font-medium text-ink">{formatRange(range.from, range.to)}</span>
+              <span className="text-ink-3"> · {daysInRange(range.from, range.to)} days, compared with </span>
+              {formatRange(previousRange.from, previousRange.to)}
+            </>
+          )}
+        </p>
       </div>
 
       {open && (
@@ -78,27 +77,21 @@ export function RangeControls({ state, meta }: { state: PageState; meta: Meta })
                 max={meta.today}
                 value={custom[key]}
                 onChange={(e) => setCustom((c) => ({ ...c, [key]: e.target.value }))}
-                className="rounded-md border border-line bg-surface px-2 py-1.5 text-ink"
+                className="rounded-md border border-line-strong bg-surface px-2 py-1.5 text-ink"
               />
             </label>
           ))}
-          <button type="submit" className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
-            Apply
+          <button type="submit" className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 dark:text-page">
+            Show these dates
           </button>
         </form>
       )}
 
-      <p className="text-sm text-ink-2">
-        <span className="font-semibold text-ink">{formatRange(range.from, range.to)}</span>
-        {" "}({daysInRange(range.from, range.to)} days)
-        <span className="text-ink-3"> · compared with </span>
-        <span className="font-medium text-ink">{formatRange(previousRange.from, previousRange.to)}</span>
-        {range.partial && (
-          <span className="ml-2 inline-block rounded bg-warn-soft px-1.5 py-0.5 text-xs font-medium text-warn">
-            Includes today — not over yet
-          </span>
-        )}
-      </p>
+      {range.partial && (
+        <p className="text-sm text-warn">
+          This range includes today, so it isn&apos;t over yet. Its numbers will still grow; the comparison is not like for like.
+        </p>
+      )}
     </section>
   );
 }

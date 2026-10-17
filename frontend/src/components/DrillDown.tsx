@@ -21,7 +21,7 @@ const VIEW_EXPLAINER: Record<DrillView, (m: Meta) => string> = {
 };
 
 const ATTENDANCE_BADGE: Record<AttendanceStatus, { label: string; cls: string }> = {
-  recorded: { label: "Attendance taken", cls: "bg-good-soft text-good" },
+  recorded: { label: "Attendance taken", cls: "bg-accent-wash text-good" },
   partly_recorded: { label: "Partly taken", cls: "bg-warn-soft text-warn" },
   not_recorded: { label: "Not taken", cls: "bg-surface-2 text-ink-2" },
   no_bookings: { label: "No bookings", cls: "bg-surface-2 text-ink-3" },
@@ -34,15 +34,15 @@ export function AttendanceBadge({ status }: { status: AttendanceStatus }) {
 
 function Tabs({ state, view }: { state: PageState; view: DrillView }) {
   return (
-    <nav aria-label="Lists" className="mb-4 flex flex-wrap gap-1">
+    <nav aria-label="Lists" className="mb-5 flex flex-wrap gap-x-5 gap-y-1 border-b border-line">
       {(Object.keys(VIEW_LABEL) as DrillView[]).map((v) => (
         <Link
           key={v}
           href={hrefWith(state, { view: v, session: undefined })}
           scroll={false}
           aria-current={v === view ? "page" : undefined}
-          className={`whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ${
-            v === view ? "bg-accent text-white" : "bg-surface text-ink-2 hover:text-ink"
+          className={`-mb-px whitespace-nowrap border-b-2 pb-2 text-sm font-medium ${
+            v === view ? "border-accent text-ink" : "border-transparent text-ink-3 hover:text-ink"
           }`}
         >
           {VIEW_LABEL[v]}
@@ -74,11 +74,11 @@ export function SessionsTable({ rows, meta, state, view }: { rows: SessionRow[];
       {rows.length === 0 ? (
         <Empty />
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+        <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-left text-sm tabular">
-            <thead className="border-b border-line text-ink-2">
+            <thead className="border-b border-line-strong text-ink-3">
               <tr>
-                <th className={`${th} pl-3`}>When ({meta.timezone})</th>
+                <th className={th}>When ({meta.timezone})</th>
                 <th className={th}>Session</th>
                 <th className={`${th} text-right`}>Booked</th>
                 <th className={`${th} text-right`}>Attended</th>
@@ -92,11 +92,11 @@ export function SessionsTable({ rows, meta, state, view }: { rows: SessionRow[];
                 const t = formatSessionTime(s.startsAt, s.endsAt, meta.timezone);
                 return (
                   <tr key={s.id} className="border-b border-line last:border-0 hover:bg-surface-2">
-                    <td className={`${td} pl-3 whitespace-nowrap`}>
+                    <td className={`${td} whitespace-nowrap`}>
                       <span className="text-ink">{t.day}</span> <span className="text-ink-2">{t.time}</span>
                     </td>
                     <td className={td}>
-                      <Link href={hrefWith(state, { session: s.id })} scroll={false} className="font-medium text-accent hover:underline">
+                      <Link href={hrefWith(state, { session: s.id })} scroll={false} className="whitespace-nowrap font-medium text-accent underline-offset-4 hover:underline">
                         {s.title}
                       </Link>
                     </td>
@@ -124,11 +124,11 @@ export function PlayersTable({ rows, meta, state, view }: { rows: PlayerRow[]; m
       {rows.length === 0 ? (
         <Empty />
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+        <div className="overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-sm tabular">
-            <thead className="border-b border-line text-ink-2">
+            <thead className="border-b border-line-strong text-ink-3">
               <tr>
-                <th className={`${th} pl-3`}>Player</th>
+                <th className={th}>Player</th>
                 <th className={`${th} text-right`} title="Attended, or attendance not taken">Played</th>
                 <th className={`${th} text-right`}>Attended</th>
                 <th className={`${th} text-right`}>No-show</th>
@@ -139,7 +139,7 @@ export function PlayersTable({ rows, meta, state, view }: { rows: PlayerRow[]; m
             <tbody>
               {rows.map((p) => (
                 <tr key={p.id} className="border-b border-line last:border-0">
-                  <td className={`${td} pl-3`}>
+                  <td className={td}>
                     <span className="font-medium text-ink">{p.name}</span>{" "}
                     <span className="text-xs text-ink-3">{p.id}</span>
                   </td>
@@ -154,7 +154,7 @@ export function PlayersTable({ rows, meta, state, view }: { rows: PlayerRow[]; m
               ))}
             </tbody>
           </table>
-          <p className="border-t border-line px-3 py-2 text-xs text-ink-2">
+          <p className="border-t border-line py-2 text-xs text-ink-3">
             “Played” counts bookings that were attended or where attendance wasn&apos;t taken; it excludes no-shows.
           </p>
         </div>
@@ -164,7 +164,7 @@ export function PlayersTable({ rows, meta, state, view }: { rows: PlayerRow[]; m
 }
 
 function Empty() {
-  return <p className="rounded-lg border border-dashed border-line p-6 text-center text-sm text-ink-2">Nothing in this period.</p>;
+  return <p className="border-y border-line py-6 text-center text-sm text-ink-2">Nothing in this period.</p>;
 }
 
 const ATTENDANCE_LABEL = {
@@ -201,18 +201,18 @@ export function SessionDetailView({ session, timezone, backHref }: { session: Se
           ["No-show", count("no_show")],
           ["Not recorded", count("not_recorded")],
         ].map(([k, v]) => (
-          <div key={k} className="rounded-lg border border-line bg-surface p-3">
+          <div key={k} className="border-l-2 border-line py-1 pl-3">
             <dt className="text-xs text-ink-2">{k}</dt>
             <dd className="text-xl font-semibold text-ink tabular">{v}</dd>
           </div>
         ))}
       </dl>
 
-      <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
+      <ul className="divide-y divide-line border-y border-line">
         {session.bookings.map((b) => {
           const a = ATTENDANCE_LABEL[b.attendance];
           return (
-            <li key={b.bookingId} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+            <li key={b.bookingId} className="flex items-center justify-between gap-3 py-2 text-sm">
               <span>
                 <span className="text-ink">{b.playerName}</span> <span className="text-xs text-ink-3">{b.playerId}</span>
               </span>
@@ -223,7 +223,7 @@ export function SessionDetailView({ session, timezone, backHref }: { session: Se
             </li>
           );
         })}
-        {session.bookings.length === 0 && <li className="px-3 py-4 text-center text-sm text-ink-2">No bookings.</li>}
+        {session.bookings.length === 0 && <li className="py-4 text-center text-sm text-ink-2">No bookings.</li>}
       </ul>
       {session.cancelledBookings > 0 && (
         <p className="text-sm text-ink-2">

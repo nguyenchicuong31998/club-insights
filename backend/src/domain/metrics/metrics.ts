@@ -58,6 +58,36 @@ export function computePeriodMetrics(sessions: SessionFacts[], now: Date): Perio
   };
 }
 
+export interface AttendanceBySessionType {
+  /** Sessions are grouped by title: a club's recurring slots ("Tuesday Open Play"). */
+  title: string;
+  sessionsHeld: number;
+  sessionsWithAttendance: number;
+  recordedBookings: number;
+  noShows: number;
+}
+
+/**
+ * Where attendance was taken, per recurring session. The no-show rate only describes the sessions
+ * that took attendance, so a host needs to see which ones those are. Most-held first.
+ */
+export function attendanceBySessionType(sessions: SessionFacts[], now: Date): AttendanceBySessionType[] {
+  const rows = new Map<string, AttendanceBySessionType>();
+  for (const s of sessions.filter((x) => isHeld(x, now))) {
+    let row = rows.get(s.title);
+    if (!row) {
+      row = { title: s.title, sessionsHeld: 0, sessionsWithAttendance: 0, recordedBookings: 0, noShows: 0 };
+      rows.set(s.title, row);
+    }
+    const recorded = s.bookings.filter((b) => b.attended !== null);
+    row.sessionsHeld++;
+    if (recorded.length) row.sessionsWithAttendance++;
+    row.recordedBookings += recorded.length;
+    row.noShows += recorded.filter((b) => b.attended === false).length;
+  }
+  return [...rows.values()].sort((a, b) => b.sessionsHeld - a.sessionsHeld || a.title.localeCompare(b.title));
+}
+
 export interface Change {
   /** current − previous (for a rate: the difference in rate, e.g. 0.023 = +2.3 points). */
   absolute: number;

@@ -91,26 +91,29 @@ export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition }: {
   // Direct label only on the latest complete week, so the current level reads without hovering.
   const labelled = values.findLastIndex((v, i) => v !== null && weeks[i].partial === null);
   const hasPartial = weeks.some((w) => w.partial);
-  const hasUnknown = values.some((v) => v === null);
+  const hasNoSessions = weeks.some((w) => w.sessionsHeld === 0 && !w.partial);
+  const hasUnknown = values.some((v, i) => v === null && !(weeks[i].sessionsHeld === 0 && !weeks[i].partial));
 
   const tip = active !== null ? weeks[active] : null;
   const tipLeft = active !== null ? Math.min(Math.max(PAD.left + band * active + band / 2, 110), width - 110) : 0;
 
   return (
-    <section aria-labelledby="weekly-title" className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4 sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <section aria-labelledby="weekly-title" className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
         <div>
-          <h2 id="weekly-title" className="text-base font-semibold text-ink">{METRIC_LABEL[metric]}, week by week</h2>
+          <h2 id="weekly-title" className="text-lg font-semibold text-ink">{METRIC_LABEL[metric]}, week by week</h2>
           <p className="text-sm text-ink-2">{definition}</p>
         </div>
-        <div role="group" aria-label="Metric" className="flex flex-wrap gap-1 rounded-lg bg-surface-2 p-1">
+        <div role="group" aria-label="Metric" className="flex flex-wrap gap-x-5">
           {CHART_METRICS.map((m) => (
             <button
               key={m}
               type="button"
               aria-pressed={metric === m}
               onClick={() => choose(m)}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium ${metric === m ? "bg-surface text-ink shadow-sm" : "text-ink-2 hover:text-ink"}`}
+              className={`border-b-2 pb-1 text-sm font-medium transition-colors ${
+                metric === m ? "border-accent text-ink" : "border-transparent text-ink-3 hover:text-ink"
+              }`}
             >
               {METRIC_LABEL[m]}
             </button>
@@ -120,7 +123,7 @@ export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition }: {
 
       {isRate && (
         <p className="text-sm text-ink-2">
-          Rate = no-shows ÷ bookings with attendance taken that week. Weeks with no attendance taken have no rate.
+          Rate = no-shows ÷ bookings checked that week. A week where no attendance was taken has no rate, shown as ?.
         </p>
       )}
 
@@ -155,7 +158,10 @@ export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition }: {
             const dim = active !== null && active !== i;
             return (
               <g key={w.start} opacity={dim ? 0.45 : 1}>
-                {v === null ? (
+                {w.sessionsHeld === 0 && !w.partial ? (
+                  // No sessions at all that week (e.g. a holiday): nothing to measure, which is not the same as 0.
+                  <line x1={x + barW / 2 - 4} x2={x + barW / 2 + 4} y1={y(0) - 6} y2={y(0) - 6} stroke="var(--ink-3)" strokeWidth={1.5} />
+                ) : v === null ? (
                   band >= 16 ? (
                     <text x={x + barW / 2} y={y(0) - 6} textAnchor="middle" fontSize="13" fontWeight="600" fill="var(--unknown)">?</text>
                   ) : (
@@ -166,7 +172,10 @@ export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition }: {
                     d={roundedTop(x, y(v), barW, y(0) - y(v), Math.min(4, barW / 2))}
                     fill={w.partial ? "url(#hatch)" : isPrevious(w) ? "var(--accent-soft)" : "var(--accent)"}
                   />
-                ) : null}
+                ) : (
+                  // A real 0: a stub on the baseline, so it never looks like missing data.
+                  <rect x={x} y={y(0) - 2} width={barW} height={2} fill={isPrevious(w) ? "var(--accent-soft)" : "var(--accent)"} />
+                )}
                 {i === labelled && v !== null && (
                   <text x={x + barW / 2} y={y(v) - 6} textAnchor="middle" fontSize="12" fontWeight="600" fill="var(--ink)" className="tabular">
                     {format(v, metric)}
@@ -185,7 +194,7 @@ export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition }: {
                   height={innerH}
                   fill="transparent"
                   tabIndex={0}
-                  aria-label={`Week of ${formatDay(w.start)}: ${v === null ? "unknown" : format(v, metric)}`}
+                  aria-label={`Week of ${formatDay(w.start)}: ${w.sessionsHeld === 0 && !w.partial ? "no sessions" : v === null ? "unknown" : format(v, metric)}`}
                   onMouseEnter={() => setActive(i)}
                   onFocus={() => setActive(i)}
                   onBlur={() => setActive(null)}
@@ -200,7 +209,7 @@ export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition }: {
         {tip && active !== null && (
           <div
             role="status"
-            className="pointer-events-none absolute top-0 z-10 w-52 -translate-x-1/2 rounded-lg border border-line bg-surface p-3 text-sm shadow-lg"
+            className="pointer-events-none absolute top-0 z-10 w-56 -translate-x-1/2 rounded-md border border-line-strong bg-surface p-3 text-sm shadow-md"
             style={{ left: tipLeft }}
           >
             <p className="font-semibold text-ink">
@@ -209,14 +218,16 @@ export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition }: {
             <p className="mt-1 text-ink tabular">
               {METRIC_LABEL[metric]}:{" "}
               <span className="font-semibold">
-                {values[active] === null ? "Unknown" : format(values[active] as number, metric)}
+                {tip.sessionsHeld === 0 && !tip.partial ? "No sessions" : values[active] === null ? "Unknown" : format(values[active] as number, metric)}
               </span>
             </p>
             <p className="text-ink-2 tabular">
               {tip.sessionsHeld} sessions · {tip.activePlayers} active players
             </p>
             <p className="text-ink-2 tabular">
-              {tip.noShows.count === null
+              {tip.sessionsHeld === 0
+                ? "Nothing was held this week"
+                : tip.noShows.count === null
                 ? "No attendance taken"
                 : `${tip.noShows.count} no-shows of ${tip.noShows.recordedBookings} checked bookings`}
             </p>
@@ -231,10 +242,10 @@ export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition }: {
           {hasPrevious && (
             <>
               <span className="inline-flex items-center gap-1.5">
-                <span aria-hidden className="inline-block h-3.5 w-3.5 rounded-sm bg-accent" /> Selected range
+                <span aria-hidden className="inline-block h-3 w-3 rounded-[2px] bg-accent" /> Selected range
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <span aria-hidden className="inline-block h-3.5 w-3.5 rounded-sm bg-accent-soft" /> Previous period
+                <span aria-hidden className="inline-block h-3 w-3 rounded-[2px] bg-accent-soft" /> Previous period
               </span>
             </>
           )}
@@ -244,13 +255,18 @@ export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition }: {
               Partial week (not comparable)
             </span>
           )}
+          {hasNoSessions && (
+            <span className="inline-flex items-center gap-1.5">
+              <span aria-hidden className="inline-block h-[1.5px] w-2.5 bg-ink-3" /> No sessions that week
+            </span>
+          )}
           {hasUnknown && (
             <span className="inline-flex items-center gap-1.5">
               <span aria-hidden className="font-semibold text-unknown">?</span> / <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-unknown" /> No attendance taken
             </span>
           )}
         </div>
-        <button type="button" onClick={() => setShowTable((s) => !s)} className="font-medium text-accent hover:underline" aria-expanded={showTable}>
+        <button type="button" onClick={() => setShowTable((s) => !s)} className="font-medium text-accent underline-offset-4 hover:underline" aria-expanded={showTable}>
           {showTable ? "Hide table" : "Show as table"}
         </button>
       </div>

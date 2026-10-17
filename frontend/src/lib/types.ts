@@ -52,8 +52,22 @@ export interface Summary {
   metrics: {
     sessionsHeld: CountComparison;
     activePlayers: CountComparison;
-    noShows: { current: NoShowMetric; previous: NoShowMetric; rateChange: Change | null; definition: string };
+    noShows: {
+      current: NoShowMetric;
+      previous: NoShowMetric;
+      rateChange: Change | null;
+      bySessionType: AttendanceBySessionType[];
+      definition: string;
+    };
   };
+}
+
+export interface AttendanceBySessionType {
+  title: string;
+  sessionsHeld: number;
+  sessionsWithAttendance: number;
+  recordedBookings: number;
+  noShows: number;
 }
 
 export interface WeeklyPoint {

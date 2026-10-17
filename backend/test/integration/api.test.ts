@@ -68,6 +68,20 @@ describe.skipIf(!dbReady)("API on the club export", () => {
     expect(m.noShows.rateChange.absolute).toBeCloseTo(15 / 151 - 14 / 152, 10);
   });
 
+  it("breaks attendance down by session type, so the rate's coverage is visible", async () => {
+    const { body } = await get(`/clubs/${CLUB}/summary`);
+    const rows = body.data.metrics.noShows.bySessionType;
+    const byTitle = Object.fromEntries(rows.map((r: { title: string; sessionsHeld: number; sessionsWithAttendance: number; noShows: number }) =>
+      [r.title, [r.sessionsHeld, r.sessionsWithAttendance, r.noShows]]));
+    expect(byTitle).toEqual({
+      "Early Bird Monday": [4, 1, 1],
+      "Saturday Morning Social": [4, 0, 0],
+      "Sunday Ladder": [4, 3, 3],
+      "Thursday Drills & Games": [4, 4, 6],
+      "Tuesday Open Play": [4, 3, 5],
+    });
+  });
+
   it("weekly values match, and the current week is in progress with nothing held yet", async () => {
     const { body } = await get(`/clubs/${CLUB}/weekly?from=2026-08-10&to=2026-10-05`);
     const weeks: Week[] = body.data.weeks;

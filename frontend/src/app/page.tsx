@@ -3,12 +3,14 @@ import { ClubSwitcher } from "@/components/ClubSwitcher";
 import { Drawer } from "@/components/Drawer";
 import { PlayersTable, SessionDetailView, SessionsTable, VIEW_LABEL } from "@/components/DrillDown";
 import { EmptyClub } from "@/components/EmptyClub";
-import { CountCard, NoShowCard } from "@/components/MetricCard";
+import { Headline } from "@/components/Headline";
+import { KeyNumbers } from "@/components/MetricCard";
+import { NoShowsBySession, WhoDidntShow } from "@/components/NoShowDetails";
 import { RangeControls } from "@/components/RangeControls";
 import { WeeklyChart } from "@/components/WeeklyChart";
 import { api, ApiError } from "@/lib/api";
-import { daysInRange, formatDateTime } from "@/lib/format";
-import type { Club, Meta, PlayerFilter, SessionFilter } from "@/lib/types";
+import { daysInRange, formatDateTime, zoneLabel } from "@/lib/format";
+import type { Club, Meta, PlayerFilter, PlayerRow, SessionFilter, WeeklyPoint } from "@/lib/types";
 import { hrefWith, parseState, type PageState } from "@/lib/url";
 
 export const dynamic = "force-dynamic";
@@ -49,11 +51,22 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
     throw e;
   }
   const { data: summary, meta } = summaryRes;
+  const selected = { from: meta.range.from, to: meta.range.to };
   // The chart shows the previous period too, for context, unless that would exceed the API's 366-day limit.
   const chartFrom = daysInRange(meta.previousRange.from, meta.range.to) <= 366 ? meta.previousRange.from : meta.range.from;
-  const weekly = summary.hasHistory ? (await api.weekly(club.id, { from: chartFrom, to: meta.range.to })).data : null;
+  // Independent requests, so they run side by side.
+  let weeks: WeeklyPoint[] = [];
+  let noShowPlayers: PlayerRow[] = [];
+  if (summary.hasHistory) {
+    const [weekly, players] = await Promise.all([
+      api.weekly(club.id, { from: chartFrom, to: meta.range.to }),
+      api.players(club.id, selected, "no_show"),
+    ]);
+    weeks = weekly.data.weeks;
+    noShowPlayers = players.data.players;
+  }
   const m = summary.metrics;
-  const drill = (view: PageState["view"]) => hrefWith(state, { view, session: undefined });
+  const drill = (view: string) => hrefWith(state, { view: view as PageState["view"], session: undefined });
 
   return (
     <Shell header={<Header clubs={clubs} club={club} state={state} meta={meta} />}>
@@ -62,30 +75,18 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
       ) : (
         <>
           <RangeControls key={`${meta.range.from}:${meta.range.to}`} state={state} meta={meta} />
-          <section aria-label="Key numbers" className="grid gap-4 md:grid-cols-3">
-            <CountCard
-              title="Active players"
-              unit="players"
-              metric={m.activePlayers}
-              links={[{ href: drill("players:active"), label: "See players" }]}
+          <Headline summary={summary} meta={meta} />
+          <KeyNumbers summary={summary} drill={drill} />
+          <WeeklyChart weeks={weeks} rangeFrom={meta.range.from} initialMetric={state.chart} definition={meta.definitions.weeks} />
+          <div className="grid gap-10 md:grid-cols-2 md:gap-12">
+            <WhoDidntShow
+              players={noShowPlayers}
+              unknown={m.noShows.current.count === null}
+              meta={meta}
+              allHref={drill("players:no_show")}
             />
-            <CountCard
-              title="Sessions held"
-              unit="sessions"
-              metric={m.sessionsHeld}
-              links={[{ href: drill("sessions:held"), label: "See sessions" }]}
-            />
-            <NoShowCard
-              metric={m.noShows}
-              links={[
-                { href: drill("players:no_show"), label: "Who didn't show" },
-                { href: drill("sessions:attendance_not_recorded"), label: "Missing attendance" },
-              ]}
-            />
-          </section>
-          {weekly && (
-            <WeeklyChart weeks={weekly.weeks} rangeFrom={meta.range.from} initialMetric={state.chart} definition={meta.definitions.weeks} />
-          )}
+            <NoShowsBySession rows={m.noShows.bySessionType} />
+          </div>
           <HowWeCount meta={meta} />
         </>
       )}
@@ -125,16 +126,17 @@ async function DrillPanel({ state, meta }: { state: PageState; meta: Meta }) {
 
 function Header({ clubs, club, state, meta }: { clubs: Club[]; club: Club; state: PageState; meta?: Meta }) {
   return (
-    <header className="border-b border-line bg-surface">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
-        <div className="flex min-w-0 items-center gap-3">
-          <Link href="/" className="hidden text-sm font-semibold text-ink-2 sm:block">Club Insights</Link>
+    <header className="border-b border-line">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-end justify-between gap-x-6 gap-y-3 px-4 pb-4 pt-5 sm:px-6 sm:pt-7">
+        <div className="flex min-w-0 flex-col gap-1">
+          <Link href="/" className="text-xs font-medium text-ink-3 hover:text-ink">Club Insights</Link>
           <ClubSwitcher clubs={clubs} state={state} current={club.id} />
         </div>
         {meta && (
-          <p className="text-xs text-ink-2 sm:text-sm">
-            Now: <span className="font-medium text-ink">{formatDateTime(meta.now, meta.timezone)}</span>
-            <span className="text-ink-3"> · times in {meta.timezone}</span>
+          <p className="text-sm text-ink-2 sm:text-right">
+            <span className="block text-xs text-ink-3">Numbers as of</span>
+            <span className="font-medium text-ink">{formatDateTime(meta.now, meta.timezone)}</span>
+            <span className="text-ink-3"> · {zoneLabel(meta.timezone, meta.now)}</span>
           </p>
         )}
       </div>
@@ -144,17 +146,29 @@ function Header({ clubs, club, state, meta }: { clubs: Club[]; club: Club; state
 
 function HowWeCount({ meta }: { meta: Meta }) {
   return (
-    <details className="rounded-xl border border-line bg-surface p-4 text-sm text-ink-2 sm:p-5">
-      <summary className="cursor-pointer font-semibold text-ink">How these numbers are counted</summary>
-      <ul className="mt-3 flex list-disc flex-col gap-1.5 pl-5">
-        <li>Dates, weeks and session times use the club&apos;s time zone ({meta.timezone}). Weeks run Monday to Sunday.</li>
+    <details className="group border-t border-line pt-5 text-sm text-ink-2">
+      <summary className="cursor-pointer list-none font-semibold text-ink">
+        <span className="mr-2 inline-block transition-transform group-open:rotate-90" aria-hidden>›</span>
+        How these numbers are counted
+      </summary>
+      <ul className="mt-3 flex max-w-3xl list-disc flex-col gap-2 pl-5 leading-relaxed">
+        <li>
+          Dates, weeks and session times are in the club&apos;s time zone ({zoneLabel(meta.timezone, meta.now)}), not
+          your device&apos;s. Weeks run Monday to Sunday, so a 05:30 Monday session counts in Monday&apos;s week even though it
+          is still Sunday in UTC.
+        </li>
         <li>Previous period: {meta.definitions.previousPeriod}</li>
         <li>Only sessions that have already started count. Cancelled sessions and cancelled bookings never count.</li>
         <li>
-          No-shows only exist where attendance was taken. Bookings without attendance are left out of the no-show
-          rate, so it is compared by rate, not by count, and the coverage is shown beside it.
+          Attendance is taken per session. Where it wasn&apos;t taken, nobody is counted as a no-show, and those bookings
+          are left out of the no-show rate. That&apos;s why no-shows are compared by rate, with the share of sessions that
+          took attendance shown next to it.
         </li>
-        <li>“Now” is fixed at {formatDateTime(meta.now, meta.timezone)} for this demo.</li>
+        <li>
+          A player who booked a session without attendance still counts as active: they probably played, and leaving them
+          out would hide half the club.
+        </li>
+        <li>&ldquo;Now&rdquo; is fixed at {formatDateTime(meta.now, meta.timezone)} for this demo.</li>
       </ul>
     </details>
   );
@@ -164,18 +178,18 @@ function Shell({ header, children }: { header?: React.ReactNode; children: React
   return (
     <div className="min-h-screen">
       {header}
-      <main className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:gap-5 sm:px-6 sm:py-6">{children}</main>
+      <main className="mx-auto flex max-w-6xl flex-col gap-8 px-4 pb-16 pt-6 sm:gap-10 sm:px-6 sm:pt-8">{children}</main>
     </div>
   );
 }
 
 function Notice({ title, body, retryHref, retryLabel = "Try again" }: { title: string; body: string; retryHref?: string; retryLabel?: string }) {
   return (
-    <div role="alert" className="flex flex-col items-start gap-2 rounded-xl border border-line bg-surface p-5">
+    <div role="alert" className="flex max-w-2xl flex-col items-start gap-2 border-l-2 border-warn py-1 pl-4">
       <p className="font-semibold text-ink">{title}</p>
       <p className="text-sm text-ink-2">{body}</p>
       {retryHref && (
-        <Link href={retryHref} className="mt-1 rounded-md bg-accent px-3 py-1.5 text-sm font-semibold text-white">{retryLabel}</Link>
+        <Link href={retryHref} className="mt-1 rounded-md bg-accent px-3 py-1.5 text-sm font-semibold text-white dark:text-page">{retryLabel}</Link>
       )}
     </div>
   );

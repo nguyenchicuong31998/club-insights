@@ -48,3 +48,30 @@ export function formatSessionTime(startIso: string, endIso: string, timeZone: st
 export const formatCount = (n: number) => n.toLocaleString("en-US");
 export const formatPercent = (fraction: number, digits = 1) => `${(fraction * 100).toFixed(digits)}%`;
 export const signed = (n: number, text: string) => (n > 0 ? `+${text}` : n < 0 ? `−${text.replace("-", "")}` : text);
+
+/** "Ho Chi Minh time (UTC+7)": the club's zone in words a host recognises. */
+export function zoneLabel(timeZone: string, at: string): string {
+  const city = (timeZone.split("/").pop() ?? timeZone).replaceAll("_", " ");
+  const offset = new Intl.DateTimeFormat("en-GB", { timeZone, timeZoneName: "shortOffset" })
+    .formatToParts(new Date(at))
+    .find((p) => p.type === "timeZoneName")?.value.replace("GMT", "UTC");
+  return offset ? `${city} time (${offset === "UTC" ? "UTC" : offset})` : `${city} time`;
+}
+
+/** "1 session", "20 sessions". */
+export const plural = (n: number, one: string, many = `${one}s`) => `${formatCount(n)} ${n === 1 ? one : many}`;
+
+/**
+ * How a range reads in a sentence: "the last 4 weeks" when it is the N complete weeks before this
+ * one, otherwise its dates. `before` names the previous period the same way.
+ */
+export function periodWords(range: { from: string; to: string }, today: string): { current: string; before: string } {
+  const days = daysInRange(range.from, range.to);
+  const weeks = days / 7;
+  if (Number.isInteger(weeks) && range.to === addDays(weekStart(today), -1)) {
+    return weeks === 1
+      ? { current: "last week", before: "the week before" }
+      : { current: `the last ${weeks} weeks`, before: `the ${weeks} weeks before` };
+  }
+  return { current: formatRange(range.from, range.to), before: `the ${days} days before` };
+}

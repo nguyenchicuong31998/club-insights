@@ -1,5 +1,7 @@
 import { DEFINITIONS } from "../../domain/metrics/definitions.js";
-import { change, computePeriodMetrics, type Change, type NoShowMetric } from "../../domain/metrics/metrics.js";
+import {
+  attendanceBySessionType, change, computePeriodMetrics, type AttendanceBySessionType, type Change, type NoShowMetric,
+} from "../../domain/metrics/metrics.js";
 import type { Club } from "../../domain/entities/Club.js";
 import { describePeriod, type ClubPeriodReader, type PeriodInfo, type RangeInput } from "../services/ClubPeriodReader.js";
 
@@ -25,6 +27,8 @@ export interface ClubSummary {
       previous: NoShowMetric;
       /** Change in the no-show *rate*, since counts depend on how much attendance was taken. */
       rateChange: Change | null;
+      /** Current period, per recurring session: shows which sessions the rate is really based on. */
+      bySessionType: AttendanceBySessionType[];
       definition: string;
     };
   };
@@ -59,6 +63,7 @@ export class GetClubSummary {
           current: cur.noShows,
           previous: prev.noShows,
           rateChange: change(cur.noShows.rate, prev.noShows.rate),
+          bySessionType: attendanceBySessionType(current, period.now),
           definition: DEFINITIONS.noShows,
         },
       },

@@ -4,7 +4,9 @@
  * (a rate that is too low). See docs/metrics.md.
  */
 import { describe, expect, it } from "vitest";
-import { change, computePeriodMetrics, playersBehind, sessionsBehind } from "../../src/domain/metrics/metrics.js";
+import {
+  attendanceBySessionType, change, computePeriodMetrics, playersBehind, sessionsBehind,
+} from "../../src/domain/metrics/metrics.js";
 import { booking, bookings, NOW, session } from "../builders.js";
 
 describe("no-shows when attendance was not taken", () => {
@@ -110,5 +112,24 @@ describe("active players and no-shows", () => {
     // p1 attended twice, p3 not recorded, p4 no-showed once and attended once. p2 only no-showed.
     expect(computePeriodMetrics(sessions, NOW).activePlayers).toBe(3);
     expect(playersBehind(sessions, NOW, "active").map((p) => p.id).sort()).toEqual(["p1", "p3", "p4"]);
+  });
+});
+
+describe("attendance by session type", () => {
+  it("shows which recurring sessions the no-show rate is based on", () => {
+    const rows = attendanceBySessionType(
+      [
+        session("2026-09-15T19:00:00+07:00", [booking("a", true), booking("b", false)], { title: "Tuesday" }),
+        session("2026-09-22T19:00:00+07:00", [booking("a", true)], { title: "Tuesday" }),
+        session("2026-09-19T07:00:00+07:00", bookings("s", 6, null), { title: "Saturday" }),
+        session("2026-09-26T07:00:00+07:00", bookings("t", 6, null), { title: "Saturday" }),
+        session("2026-09-27T07:00:00+07:00", [], { title: "Sunday", status: "cancelled" }),
+      ],
+      NOW,
+    );
+    expect(rows).toEqual([
+      { title: "Saturday", sessionsHeld: 2, sessionsWithAttendance: 0, recordedBookings: 0, noShows: 0 },
+      { title: "Tuesday", sessionsHeld: 2, sessionsWithAttendance: 2, recordedBookings: 3, noShows: 1 },
+    ]);
   });
 });

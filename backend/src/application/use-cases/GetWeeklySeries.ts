@@ -24,15 +24,22 @@ export class GetWeeklySeries {
     const sessions = await this.reader.sessionsIn(period, period.range);
     const tz = period.club.timezone;
 
+    // Bucket each session once. Converting to local time per session per week was O(weeks × sessions)
+    // Intl calls: about 400 ms for a one-year range.
+    const byWeek = new Map<string, typeof sessions>();
+    for (const s of sessions) {
+      const start = weekStartOf(localDateOf(s.startsAt, tz));
+      const bucket = byWeek.get(start);
+      if (bucket) bucket.push(s);
+      else byWeek.set(start, [s]);
+    }
+
     return {
       period: describePeriod(period),
       definition: DEFINITIONS.weeks,
       weeks: weeksOverlapping(period.range, period.today).map((week) => ({
         ...week,
-        ...computePeriodMetrics(
-          sessions.filter((s) => weekStartOf(localDateOf(s.startsAt, tz)) === week.start),
-          period.now,
-        ),
+        ...computePeriodMetrics(byWeek.get(week.start) ?? [], period.now),
       })),
     };
   }
