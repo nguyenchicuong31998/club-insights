@@ -11,8 +11,9 @@ export function formatDay(date: string, opts: { weekday?: boolean; year?: boolea
   });
 }
 
-/** "7 Sep – 4 Oct 2026", collapsing the repeated year. */
+/** "7 Sep – 4 Oct 2026", collapsing the repeated year; a single day is just "4 Oct 2026". */
 export function formatRange(from: string, to: string): string {
+  if (from === to) return formatDay(from, { year: true });
   const sameYear = from.slice(0, 4) === to.slice(0, 4);
   return `${formatDay(from, { year: !sameYear })} – ${formatDay(to, { year: true })}`;
 }

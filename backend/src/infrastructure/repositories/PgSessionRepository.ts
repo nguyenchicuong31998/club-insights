@@ -1,4 +1,5 @@
 import type pg from "pg";
+import { readQuery } from "../database/pool.js";
 import type { BookingFact, SessionFacts } from "../../domain/metrics/SessionFacts.js";
 import type { SessionDetail, SessionRepository } from "../../domain/repositories/SessionRepository.js";
 
@@ -46,7 +47,8 @@ export class PgSessionRepository implements SessionRepository {
   constructor(private readonly pool: pg.Pool) {}
 
   async findStartingBetween(clubId: string, start: Date, end: Date): Promise<SessionFacts[]> {
-    const { rows } = await this.pool.query<SessionRow>(
+    const { rows } = await readQuery<SessionRow>(
+      this.pool,
       `${SELECT_SESSIONS}
        WHERE s.club_id = $1 AND s.starts_at >= $2 AND s.starts_at < $3
        GROUP BY s.id
@@ -57,7 +59,8 @@ export class PgSessionRepository implements SessionRepository {
   }
 
   async findDetail(clubId: string, sessionId: string): Promise<SessionDetail | null> {
-    const { rows } = await this.pool.query<SessionRow>(
+    const { rows } = await readQuery<SessionRow>(
+      this.pool,
       `${SELECT_SESSIONS}
        WHERE s.club_id = $1 AND s.id = $2
        GROUP BY s.id`,
@@ -68,7 +71,8 @@ export class PgSessionRepository implements SessionRepository {
   }
 
   async firstSessionStart(clubId: string): Promise<Date | null> {
-    const { rows } = await this.pool.query<{ first: Date | null }>(
+    const { rows } = await readQuery<{ first: Date | null }>(
+      this.pool,
       "SELECT min(starts_at) AS first FROM sessions WHERE club_id = $1 AND status = 'scheduled'",
       [clubId],
     );

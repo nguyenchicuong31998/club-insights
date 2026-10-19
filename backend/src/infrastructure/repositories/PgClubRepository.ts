@@ -1,4 +1,5 @@
 import type pg from "pg";
+import { readQuery } from "../database/pool.js";
 import type { Club } from "../../domain/entities/Club.js";
 import type { ClubRepository } from "../../domain/repositories/ClubRepository.js";
 
@@ -23,12 +24,12 @@ export class PgClubRepository implements ClubRepository {
   constructor(private readonly pool: pg.Pool) {}
 
   async findAll(): Promise<Club[]> {
-    const { rows } = await this.pool.query<ClubRow>(`${SELECT_CLUBS} ORDER BY created_on, id`);
+    const { rows } = await readQuery<ClubRow>(this.pool, `${SELECT_CLUBS} ORDER BY created_on, id`);
     return rows.map(toClub);
   }
 
   async findById(id: string): Promise<Club | null> {
-    const { rows } = await this.pool.query<ClubRow>(`${SELECT_CLUBS} WHERE id = $1`, [id]);
+    const { rows } = await readQuery<ClubRow>(this.pool, `${SELECT_CLUBS} WHERE id = $1`, [id]);
     return rows[0] ? toClub(rows[0]) : null;
   }
 }

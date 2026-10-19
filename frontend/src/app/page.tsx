@@ -33,7 +33,21 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
     return <Shell><Notice title="No clubs yet" body="The database has no clubs. Run `npm run db:seed` to load the sample data." /></Shell>;
   }
 
-  const club = clubs.find((c) => c.id === parsed.club) ?? clubs[0];
+  const found = clubs.find((c) => c.id === parsed.club);
+  if (parsed.club && !found) {
+    // Never fall back to another club silently: its numbers would pass for the ones asked for.
+    return (
+      <Shell header={<Header clubs={clubs} club={clubs[0]} state={{ club: clubs[0].id }} />}>
+        <Notice
+          title="This club doesn't exist"
+          body={`There is no club with the id "${parsed.club}". The link may be old or mistyped. Pick a club above, or open ${clubs[0].name}.`}
+          retryHref={hrefWith({}, { club: clubs[0].id })}
+          retryLabel={`Open ${clubs[0].name}`}
+        />
+      </Shell>
+    );
+  }
+  const club = found ?? clubs[0];
   const state: PageState = { ...parsed, club: club.id };
   const range = { from: state.from, to: state.to };
 

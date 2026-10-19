@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { addDays, daysInRange, formatRange, weekStart } from "@/lib/format";
+import { addDays, daysInRange, formatRange, plural, weekStart } from "@/lib/format";
 import type { Meta } from "@/lib/types";
 import { hrefWith, type PageState } from "@/lib/url";
 
@@ -52,7 +52,7 @@ export function RangeControls({ state, meta }: { state: PageState; meta: Meta })
           ) : (
             <>
               <span className="font-medium text-ink">{formatRange(range.from, range.to)}</span>
-              <span className="text-ink-3"> · {daysInRange(range.from, range.to)} days, compared with </span>
+              <span className="text-ink-3"> · {plural(daysInRange(range.from, range.to), "day")}, compared with </span>
               {formatRange(previousRange.from, previousRange.to)}
             </>
           )}

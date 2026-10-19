@@ -1,13 +1,21 @@
 "use client";
 
-export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+/**
+ * Shown when the server can't render the page (for example the API or the database is down).
+ * It doesn't print `error.message`: in production that text differs between server and browser,
+ * which breaks hydration. The digest is the same on both sides and ties the screen to the server log.
+ */
+export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col items-start justify-center gap-3 px-4">
-      <p className="text-lg font-semibold text-ink">Something went wrong loading the numbers</p>
-      <p className="text-sm text-ink-2">{error.message || "Unexpected error."}</p>
+      <p className="text-lg font-semibold text-ink">The numbers couldn&apos;t be loaded</p>
+      <p className="text-sm text-ink-2">
+        The dashboard couldn&apos;t reach its data just now. Nothing is lost; trying again usually works.
+      </p>
       <button type="button" onClick={reset} className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white dark:text-page">
         Try again
       </button>
+      {error.digest && <p className="text-xs text-ink-3">Reference: {error.digest}</p>}
     </main>
   );
 }

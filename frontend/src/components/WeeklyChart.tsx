@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import { formatCount, formatDay, formatPercent } from "@/lib/format";
+import { formatCount, formatDay, formatPercent, plural } from "@/lib/format";
 import type { WeeklyPoint } from "@/lib/types";
 import { CHART_METRICS, type ChartMetric } from "@/lib/url";
 
@@ -227,14 +227,14 @@ export function WeeklyChart({ weeks, rangeFrom, initialMetric, definition, metri
               </span>
             </p>
             <p className="text-ink-2 tabular">
-              {tip.sessionsHeld} sessions · {tip.activePlayers} active players
+              {plural(tip.sessionsHeld, "session")} · {plural(tip.activePlayers, "active player")}
             </p>
             <p className="text-ink-2 tabular">
               {tip.sessionsHeld === 0
                 ? "Nothing was held this week"
                 : tip.noShows.count === null
                 ? "No attendance taken"
-                : `${tip.noShows.count} no-shows of ${tip.noShows.recordedBookings} checked bookings`}
+                : `${plural(tip.noShows.count, "no-show")} of ${plural(tip.noShows.recordedBookings, "checked booking")}`}
             </p>
             {isPrevious(tip) && <p className="mt-1 text-ink-3">Previous period (for comparison)</p>}
             {tip.partial && <p className="mt-1 font-medium text-warn">{PARTIAL_LABEL[tip.partial]}</p>}
