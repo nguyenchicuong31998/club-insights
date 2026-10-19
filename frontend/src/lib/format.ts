@@ -73,13 +73,19 @@ export const plural = (n: number, one: string, many = `${one}s`) => `${formatCou
  * How a range reads in a sentence: "the last 4 weeks" when it is the N complete weeks before this
  * one, otherwise its dates. `before` names the previous period the same way.
  */
+/** The range as words that read after "So far," or at the start of a sentence: "in the last 4 weeks", "on 3 Oct 2026". */
 export function periodWords(range: { from: string; to: string }, today: string): { current: string; before: string } {
   const days = daysInRange(range.from, range.to);
   const weeks = days / 7;
   if (Number.isInteger(weeks) && range.to === addDays(weekStart(today), -1)) {
     return weeks === 1
       ? { current: "last week", before: "the week before" }
-      : { current: `the last ${weeks} weeks`, before: `the ${weeks} weeks before` };
+      : { current: `in the last ${weeks} weeks`, before: `the ${weeks} weeks before` };
   }
-  return { current: formatRange(range.from, range.to), before: `the ${days} days before` };
+  if (range.from === range.to) return { current: `on ${formatRange(range.from, range.to)}`, before: "the day before" };
+  const sameYear = range.from.slice(0, 4) === range.to.slice(0, 4);
+  return {
+    current: `from ${formatDay(range.from, { year: !sameYear })} to ${formatDay(range.to, { year: true })}`,
+    before: `the ${days} days before`,
+  };
 }

@@ -14,7 +14,7 @@ export function Headline({ summary, meta }: { summary: Summary; meta: Meta }) {
   const cur = noShows.current;
 
   let comparison: React.ReactNode;
-  if (held.previous === 0) comparison = <>There were no sessions in {words.before}, so there is nothing to compare with yet.</>;
+  if (held.previous === 0) comparison = <>There were no sessions during {words.before}, so there is nothing to compare with yet.</>;
   else {
     const diff = players.current - players.previous;
     comparison = diff === 0
@@ -35,7 +35,7 @@ export function Headline({ summary, meta }: { summary: Summary; meta: Meta }) {
       : "the same as before";
     attendance = (
       <>
-        Attendance was taken at <B>{formatCount(cur.sessionsWithAttendance)} of {formatCount(held.current)}</B> sessions.
+        Attendance was taken at <B>{formatCount(cur.sessionsWithAttendance)} of {formatCount(held.current)}</B> {held.current === 1 ? "session" : "sessions"}.
         At those, <B>{plural(cur.count, "booking")}</B> {cur.count === 1 ? "was a no-show" : "were no-shows"} ({formatPercent(cur.rate ?? 0)}
         {trend ? `, ${trend}` : ""}).
       </>
@@ -45,9 +45,11 @@ export function Headline({ summary, meta }: { summary: Summary; meta: Meta }) {
   return (
     <section aria-label="Summary" className="max-w-4xl">
       <p className="text-xl leading-snug text-ink-2 sm:text-2xl sm:leading-snug">
-        {meta.range.partial ? "So far, " : "In "}
-        {meta.range.partial ? `in ${words.current}, ` : `${words.current}, `}
-        <B>{plural(players.current, "player")}</B> played at <B>{plural(held.current, "session")}</B>. {comparison}
+        {meta.range.partial ? `So far, ${words.current}, ` : `${words.current[0].toUpperCase()}${words.current.slice(1)}, `}
+        {held.current === 0
+          ? <>no sessions were held.</>
+          : <><B>{plural(players.current, "player")}</B> played at <B>{plural(held.current, "session")}</B>.</>}{" "}
+        {comparison}
       </p>
       {attendance && <p className="mt-2 text-base leading-relaxed text-ink-2 sm:text-lg">{attendance}</p>}
     </section>

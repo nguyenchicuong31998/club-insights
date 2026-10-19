@@ -39,13 +39,13 @@ function Column({ title, children, definition, links }: {
       <h2 className="text-[15px] font-medium text-ink">{title}</h2>
       {children}
       <p className="text-sm leading-relaxed text-ink-3">{definition}</p>
-      <nav aria-label={`Details behind ${title}`} className="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-1">
+      {links.length > 0 && <nav aria-label={`Details behind ${title}`} className="mt-auto flex flex-wrap gap-x-4 gap-y-1 pt-1">
         {links.map((l) => (
           <Link key={l.href} href={l.href} scroll={false} className="text-sm font-medium text-accent underline-offset-4 hover:underline">
             {l.label} <span aria-hidden>→</span>
           </Link>
         ))}
-      </nav>
+      </nav>}
     </article>
   );
 }
@@ -153,20 +153,22 @@ export function KeyNumbers({ summary, drill }: { summary: Summary; drill: (view:
         title="Active players"
         unit="players"
         metric={m.activePlayers}
-        links={[{ href: drill("players:active"), label: `See the ${plural(m.activePlayers.current, "player")}` }]}
+        links={m.activePlayers.current === 0 ? [] : [{ href: drill("players:active"), label: `See the ${plural(m.activePlayers.current, "player")}` }]}
       />
       <CountColumn
         title="Sessions held"
         unit="sessions"
         metric={m.sessionsHeld}
-        links={[{ href: drill("sessions:held"), label: `See the ${plural(m.sessionsHeld.current, "session")}` }]}
+        links={m.sessionsHeld.current === 0 ? [] : [{ href: drill("sessions:held"), label: `See the ${plural(m.sessionsHeld.current, "session")}` }]}
       />
       <NoShowColumn
         metric={m.noShows}
         sessionsHeld={m.sessionsHeld.current}
         links={[
-          { href: drill("players:no_show"), label: "Who didn't show" },
-          { href: drill("sessions:attendance_not_recorded"), label: "Sessions without attendance" },
+          ...(m.noShows.current.count ? [{ href: drill("players:no_show"), label: "Who didn't show" }] : []),
+          ...(m.noShows.current.recordedBookings < m.noShows.current.confirmedBookings
+            ? [{ href: drill("sessions:attendance_not_recorded"), label: "Sessions without attendance" }]
+            : []),
         ]}
       />
     </section>
