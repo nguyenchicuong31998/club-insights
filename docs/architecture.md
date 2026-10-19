@@ -64,7 +64,7 @@ npm test                      # repo root: starts and seeds Postgres if needed, 
 npm --prefix backend test     # tests only; the API tests are skipped, with a message, if there is no seeded database
 ```
 
-The tests use Vitest and live in `backend/test`. There are 67 of them.
+The tests use Vitest and live in `backend/test`. There are 70 of them.
 
 | File | What it checks |
 |---|---|
@@ -73,6 +73,7 @@ The tests use Vitest and live in `backend/test`. There are 67 of them.
 | `domain/periods.test.ts` | **Comparisons.** The previous period has the same length, including across month ends and leap days. The change is correct, and its relative part is null (not Infinity) when the previous value is 0. "Today" is the club's local date. Bad ranges are rejected. |
 | `application/weekly.test.ts` | **Use cases over in-memory repositories.** Sessions at the edges of a range or a week land in the right bucket. Unknown no-shows stay separate from 0, week by week. A new club has no history. |
 | `integration/api.test.ts` | **The HTTP API on the seeded Postgres data,** checked against the hand-computed values in [metrics.md](metrics.md): 20/20 sessions, 89/88 active players, 15 no-shows of 151 recorded vs 14 of 152, every weekly value, and the local 5/5 split of sessions across 7–20 Sep (UTC would give 1/5/4). Each list adds up to its number. A session without attendance shows only "not recorded". Players with the same name stay separate. The empty club works. Errors return 400 and 404. |
+| `infrastructure/pool.test.ts` | **A dropped database connection.** Connection failures (such as `ECONNRESET`) are told apart from query errors, and a read retries once after a dropped connection instead of turning the page into a 500. A real query error is not retried. |
 | `infrastructure/readCsvData.test.ts` | **The CSV loader.** Columns are mapped and the end time is derived. Blank attendance stays unknown. Impossible dates such as `2026-02-30`, timestamps without an offset, bad numbers and flags are rejected, as are a second live booking by the same player, a player from another club, and inconsistent cancellations. Attendance on a session without attendance is ignored and reported. The real export loads with no rejected rows. |
 
 To make sure the tests can fail, two bugs were added on purpose and then removed: dividing no-shows by all bookings, and bucketing weeks in UTC. Together they made 7 tests fail.

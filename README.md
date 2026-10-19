@@ -23,7 +23,7 @@ the install. No `.env` is needed.
 
 | Command | Does |
 |---|---|
-| `npm test` | Starts and seeds Postgres if needed, then runs the 67 backend tests |
+| `npm test` | Starts and seeds Postgres if needed, then runs the 70 backend tests |
 | `npm run check` | Typechecks backend and frontend, lints the frontend |
 | `npm run db:check` | Recomputes the headline numbers in plain SQL, to compare with the screen |
 | `npm run db:seed` / `db:reset` | Reloads the CSVs (lists any rejected rows) / rebuilds the database from scratch |
@@ -54,11 +54,13 @@ The test for the number most likely to be wrong, no-shows, is `backend/test/doma
 
 **The build**
 
-- **PostgreSQL instead of SQLite.** The brief asks for SQLite; this project uses PostgreSQL at the owner's
-  request. What that buys: `CHECK` constraints and a unique index reject bad data at the source, and
-  `timestamptz` / `AT TIME ZONE` let `npm run db:check` verify the time zone rules in plain SQL. What it costs:
-  Docker has to be running. Switching back would touch only the infrastructure layer (repositories,
-  migrations, seed), because all metric and time zone logic is plain TypeScript.
+- **PostgreSQL instead of SQLite, on purpose.** The brief asks for SQLite; I chose PostgreSQL because the
+  numbers depend on time zones and clean data. What that buys: `timestamptz` and `AT TIME ZONE` let
+  `npm run db:check` recompute the headline numbers and the local-week rules in plain SQL, independently of the
+  TypeScript, and `CHECK` constraints plus a unique index reject bad rows at the source. What it costs: Docker
+  has to be running, and `npm start` starts the database itself. Switching to SQLite would touch only the
+  infrastructure layer (repositories, migrations, seed), because all metric and time zone logic is plain
+  TypeScript with no database imports.
 - **Numbers are computed in one place.** The domain layer computes every number from "sessions with their
   bookings", and the cards, the chart and the drill-down lists all call the same functions. So a headline
   number always equals the list behind it, and the logic is tested without a database.
