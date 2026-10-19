@@ -11,24 +11,107 @@ docs/       metric definitions, API reference, how it is built
 
 ## Run it
 
-Needs **Node 22+** and **Docker Desktop running** (for PostgreSQL; see the first decision below).
+You need **Node 22+**, **npm**, and **Docker** (Docker Desktop on Windows and macOS) running. Docker is only
+used for PostgreSQL. No `.env` file is needed: the defaults match `docker-compose.yml`.
+
+### Quick start (one command)
 
 ```bash
 npm start
 ```
 
-This installs dependencies, starts Postgres on port 5434, creates the tables, loads the CSVs, and serves the
-API on http://localhost:4000 and the dashboard on **http://localhost:3000**. Afterwards, `npm run dev` skips
-the install. No `.env` is needed.
+This installs all dependencies, starts PostgreSQL in Docker, creates the tables, loads the CSVs (only if the
+database is empty), then runs the API and the dashboard side by side:
+
+| What | URL |
+|---|---|
+| Dashboard | **http://localhost:3000** |
+| API | http://localhost:4000/api/clubs (health check: http://localhost:4000/health) |
+| PostgreSQL | `localhost:5434`, user `club`, password `club`, database `club_insights` |
+
+Stop it with `Ctrl+C`. Next time, `npm run dev` does the same without reinstalling. The database keeps running
+in Docker until you stop it (see below).
+
+### Step by step
+
+Use this to run each part in its own terminal, or to see what `npm start` does.
+
+**1. Database (Docker Compose)**
+
+```bash
+docker compose up -d --wait db     # or: npm run db:up
+docker compose ps                  # "db" should show (healthy)
+```
+
+Postgres 16 listens on **5434** on your machine (not 5432, so it doesn't clash with a local install). Data
+lives in the `pgdata` volume, so it survives restarts.
+
+| Command | Does |
+|---|---|
+| `docker compose stop` | Stops the database, keeps the data |
+| `docker compose down` (`npm run db:down`) | Removes the container, keeps the data |
+| `docker compose down -v` | Removes the container **and deletes the data** |
+| `npm run db:reset` | Deletes the data, starts again, creates tables, reloads the CSVs |
+| `docker compose exec db psql -U club -d club_insights` | Opens a SQL prompt |
+
+**2. Backend (API, port 4000)**
+
+```bash
+cd backend
+npm install
+npm run db:migrate    # creates the tables (safe to run again)
+npm run db:seed       # loads backend/data/*.csv, replacing what is there, and lists rejected rows
+npm run dev           # http://localhost:4000, restarts on file changes
+```
+
+For a production-style run: `npm run build` then `npm start`. Tests: `npm test` (needs the database seeded).
+
+Optional settings: copy `backend/.env.example` to `backend/.env` and change what you need.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `PORT` | `4000` | API port |
+| `DATABASE_URL` | `postgres://club:club@localhost:5434/club_insights` | Matches `docker-compose.yml` |
+| `CORS_ORIGIN` | `http://localhost:3000` | Browser origin allowed to call the API directly (the dashboard calls it from its server, so it doesn't need this) |
+| `NOW` | `2026-10-05T09:00:00+07:00` | Fixed "now" for every number, so results are reproducible |
+
+**3. Frontend (dashboard, port 3000)**
+
+Start the backend first, then in a second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev           # http://localhost:3000
+```
+
+For a production-style run: `npm run build` then `npm start`. The page is rendered on the server, which calls
+the API at `API_URL` (default `http://localhost:4000`; set it in `frontend/.env.local` if the API runs
+elsewhere). The browser never calls the API directly.
+
+### Other commands (from the repo root)
 
 | Command | Does |
 |---|---|
 | `npm test` | Starts and seeds Postgres if needed, then runs the 70 backend tests |
 | `npm run check` | Typechecks backend and frontend, lints the frontend |
 | `npm run db:check` | Recomputes the headline numbers in plain SQL, to compare with the screen |
-| `npm run db:seed` / `db:reset` | Reloads the CSVs (lists any rejected rows) / rebuilds the database from scratch |
+| `npm run db:seed` | Reloads the CSVs, replacing what is in the database, and lists any rejected rows |
 
 The test for the number most likely to be wrong, no-shows, is `backend/test/domain/noShows.test.ts`.
+
+### If something goes wrong
+
+- **`Cannot connect to the Docker daemon` / `db:up` fails:** start Docker Desktop and wait until it says it is
+  running, then try again.
+- **Port 5434 is already in use:** change the left side of `"5434:5432"` in `docker-compose.yml` and set
+  `DATABASE_URL` in `backend/.env` to the same port.
+- **Port 3000 is already in use:** run the dashboard on another port with `npm --prefix frontend run dev -- -p 3001`.
+- **Port 4000 is already in use:** set `PORT` in `backend/.env` and `API_URL` in `frontend/.env.local` to the
+  new port.
+- **The dashboard says "Can't reach the API":** the backend isn't running, or `API_URL` points to the wrong
+  place.
+- **Numbers look wrong or tables are empty:** `npm run db:reset` rebuilds the database from the CSVs.
 
 ## Decisions where the brief was silent
 
