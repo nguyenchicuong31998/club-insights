@@ -48,6 +48,13 @@ export function formatSessionTime(startIso: string, endIso: string, timeZone: st
 
 export const formatCount = (n: number) => n.toLocaleString("en-US");
 export const formatPercent = (fraction: number, digits = 1) => `${(fraction * 100).toFixed(digits)}%`;
+
+/**
+ * A no-show rate change under 1 point reads as "about the same". With ~150 checked bookings a period,
+ * one booking moves the rate by ~0.7 points, so a smaller change is one person, not a trend.
+ */
+export const SMALL_RATE_CHANGE = 0.01;
+export const isSmallRateChange = (delta: number) => Math.abs(delta) < SMALL_RATE_CHANGE;
 export const signed = (n: number, text: string) => (n > 0 ? `+${text}` : n < 0 ? `−${text.replace("-", "")}` : text);
 
 /** "Ho Chi Minh time (UTC+7)": the club's zone in words a host recognises. */

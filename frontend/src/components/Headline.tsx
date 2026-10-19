@@ -1,4 +1,4 @@
-import { formatCount, formatPercent, periodWords, plural } from "@/lib/format";
+import { formatCount, formatPercent, isSmallRateChange, periodWords, plural } from "@/lib/format";
 import type { Meta, Summary } from "@/lib/types";
 
 const B = ({ children }: { children: React.ReactNode }) => <strong className="font-semibold text-ink">{children}</strong>;
@@ -29,13 +29,14 @@ export function Headline({ summary, meta }: { summary: Summary; meta: Meta }) {
   } else {
     const prevRate = noShows.previous.rate;
     const trend = prevRate === null || cur.rate === null ? null
+      : isSmallRateChange(cur.rate - prevRate) ? `about the same as ${formatPercent(prevRate)} before`
       : cur.rate > prevRate ? `up from ${formatPercent(prevRate)}`
       : cur.rate < prevRate ? `down from ${formatPercent(prevRate)}`
       : "the same as before";
     attendance = (
       <>
-        Attendance was taken at <B>{formatCount(cur.sessionsWithAttendance)} of {formatCount(held.current)}</B> sessions;
-        there, <B>{plural(cur.count, "booking")}</B> {cur.count === 1 ? "was a no-show" : "were no-shows"} ({formatPercent(cur.rate ?? 0)}
+        Attendance was taken at <B>{formatCount(cur.sessionsWithAttendance)} of {formatCount(held.current)}</B> sessions.
+        At those, <B>{plural(cur.count, "booking")}</B> {cur.count === 1 ? "was a no-show" : "were no-shows"} ({formatPercent(cur.rate ?? 0)}
         {trend ? `, ${trend}` : ""}).
       </>
     );

@@ -39,11 +39,11 @@ export function RangeControls({ state, meta }: { state: PageState; meta: Meta })
         <div role="group" aria-label="Preset ranges" className="flex flex-wrap gap-x-5">
           {PRESET_WEEKS.map((n) => (
             <button key={n} type="button" aria-pressed={activePreset === n} onClick={() => go(lastWeeks(meta.today, n))} className={tab(activePreset === n)}>
-              Last {n} weeks
+              <span className="max-sm:hidden">Last </span>{n} weeks
             </button>
           ))}
           <button type="button" aria-expanded={open} aria-pressed={!activePreset} onClick={() => setOpen((o) => !o)} className={tab(!activePreset)}>
-            Custom dates
+            Custom<span className="max-sm:hidden"> dates</span>
           </button>
         </div>
         <p className="pb-2 text-sm text-ink-2 tabular">

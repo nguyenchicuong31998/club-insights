@@ -35,12 +35,12 @@ export function NoShowsBySession({ rows }: { rows: AttendanceBySessionType[] }) 
         }
       />
       <div id="by-session" className="overflow-x-auto">
-        <table className="w-full min-w-[420px] text-left text-sm tabular">
+        <table className="w-full text-left text-sm tabular">
           <thead className="border-b border-line-strong text-ink-3">
             <tr>
               <th className="py-2 pr-3 font-medium">Session</th>
-              <th className="py-2 pr-3 font-medium">Attendance taken</th>
-              <th className="py-2 pr-3 text-right font-medium">No-shows</th>
+              <th className="py-2 pr-3 font-medium">Attendance<span className="max-sm:hidden"> taken</span></th>
+              <th className="whitespace-nowrap py-2 pr-3 text-right font-medium">No-shows</th>
               <th className="py-2 text-right font-medium">Rate</th>
             </tr>
           </thead>
@@ -52,7 +52,7 @@ export function NoShowsBySession({ rows }: { rows: AttendanceBySessionType[] }) 
                   <td className="py-2.5 pr-3 font-medium text-ink">{r.title}</td>
                   <td className="py-2.5 pr-3">
                     <span className="flex items-center gap-2">
-                      <span className="h-1.5 w-16 overflow-hidden rounded-full bg-surface-2" aria-hidden>
+                      <span className="h-1.5 w-16 overflow-hidden rounded-full bg-surface-2 max-sm:hidden" aria-hidden>
                         <span className="block h-full rounded-full bg-accent" style={{ width: `${share * 100}%` }} />
                       </span>
                       <span className={r.sessionsWithAttendance === 0 ? "text-warn" : "text-ink-2"}>

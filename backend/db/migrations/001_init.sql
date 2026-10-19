@@ -10,7 +10,7 @@ CREATE TABLE clubs (
   created_at TIMESTAMPTZ NOT NULL
 );
 
--- Players are not scoped to a club: the same person can book at several clubs.
+-- 002_real_data_schema.sql later ties each player to one club (players.club_id), as in the real export.
 CREATE TABLE players (
   id         TEXT PRIMARY KEY,
   name       TEXT NOT NULL,

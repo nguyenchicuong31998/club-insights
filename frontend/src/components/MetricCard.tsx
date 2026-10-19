@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatCount, formatPercent, plural, signed } from "@/lib/format";
+import { formatCount, formatPercent, isSmallRateChange, plural, signed } from "@/lib/format";
 import type { Change, CountComparison, NoShowMetric, Summary } from "@/lib/types";
 
 interface DrillLink {
@@ -7,10 +7,15 @@ interface DrillLink {
   label: string;
 }
 
-/** Arrow + words, never colour alone. `higherIsBetter` decides whether up reads as good or bad. */
-function Delta({ change, text, higherIsBetter, against }: { change: Change; text: string; higherIsBetter: boolean; against: string }) {
+/**
+ * Arrow + words, never colour alone. `higherIsBetter` decides whether up reads as good or bad.
+ * A `small` change keeps its arrow but stays neutral, so noise isn't flagged as good or bad news.
+ */
+function Delta({ change, text, higherIsBetter, against, small = false }: {
+  change: Change; text: string; higherIsBetter: boolean; against: string; small?: boolean;
+}) {
   const dir = change.absolute > 0 ? "up" : change.absolute < 0 ? "down" : "flat";
-  const tone = dir === "flat" ? "text-ink-2" : (dir === "up") === higherIsBetter ? "text-good" : "text-bad";
+  const tone = dir === "flat" || small ? "text-ink-2" : (dir === "up") === higherIsBetter ? "text-good" : "text-bad";
   return (
     <p className="text-sm text-ink-2 tabular">
       <span className={`font-semibold ${tone}`}>
@@ -18,6 +23,7 @@ function Delta({ change, text, higherIsBetter, against }: { change: Change; text
         {dir === "flat" ? "No change" : text}
       </span>{" "}
       vs {against}
+      {small && dir !== "flat" && <span className="text-ink-3"> · about the same</span>}
     </p>
   );
 }
@@ -120,6 +126,7 @@ function NoShowColumn({ metric, sessionsHeld, links }: {
             <Delta
               change={rateChange}
               higherIsBetter={false}
+              small={isSmallRateChange(rateChange.absolute)}
               text={`${signed(rateChange.absolute, (Math.abs(rateChange.absolute) * 100).toFixed(1))} pts`}
               against={`${formatPercent(prev.rate)} before`}
             />
